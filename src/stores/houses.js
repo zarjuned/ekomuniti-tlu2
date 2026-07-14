@@ -2,22 +2,55 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { TOTAL_HOUSES } from '@/lib/constants'
 
-const MOCK_NAMES = [
-  'Ahmad bin Ali', 'Chong Wei Ming', 'Ramasamy a/l Muthu', 'Siti Aminah binti Yusuf',
-  'Mohd Farhan bin Osman', 'Tan Ah Kow', 'Ganesan a/l Ravi', 'Nurul Huda binti Hasan',
-  'Lim Boon Huat', 'Kamal bin Ismail', 'Priya a/p Suresh', 'Fatimah bt Abdullah',
-  'Ong Chee Keong', 'Muthu a/l Arumugam', 'Zainab bt Ibrahim', 'Lee Mei Ling',
-  'Rizal bin Hamid', 'Kavitha a/p Maniam', 'Chan Kok Leong', 'Nor Azlina bt Yusof',
-  'Harjit Singh', 'Yap Ah Fook', 'Arun a/l Bala', 'Sharifah bt Ali',
-  'Wong Chee Weng', 'Nasir bin Othman', 'Meenakshi a/p Pillai', 'Salmah bt Hassan',
-  'Tan Kim Huat', 'Zulkifli bin Mat', 'Lakshmi a/p Ramu', 'Rohana bt Daud',
-  'Leong Kok Weng', 'Shahrul bin Nizam', 'Amirah bt Azman', 'Ho Ah Lek',
-  'Vellu a/l Kandasamy', 'Hanis bt Hakim', 'Chia Ming Hui', 'Nadzirah bt Rashid',
-  'Rajesh a/l Kumar', 'Soh Ah Peng', 'Nithya a/p Gopal', 'Hafizah bt Sulaiman',
-  'Teoh Boon Chai', 'Azman bin Wahab', 'Saras a/p Devi', 'Syarifah bt Alwi',
-  'Chew Kok Leong', 'Rosli bin Talib', 'Shanthi a/p Muniandy', 'Khadijah bt Omar',
-  'Koh Ah Soon', 'Faizal bin Zain', 'Revathi a/p Nair', 'Mardiana bt Hamzah',
-  'Phua Ah Bah', 'Azhar bin Ghani', 'Vasantha a/p Krishna', 'Zainal bin Abidin'
+const RESIDENTS = {
+  1:  'En Hamzah',
+  2:  'Juned',
+  5:  'Ain',
+  6:  'Halim',
+  7:  'Kamarul',
+  8:  'Cikgu Dolah',
+  9:  'Ravi',
+  10: 'Shafinas',
+  11: 'Adam',
+  12: 'Shima',
+  14: 'Amir',
+  15: 'Kamil',
+  16: 'Ashraf',
+  17: 'Khairul',
+  18: 'Rafizal',
+  20: 'Wan',
+  21: 'Ujang',
+  22: 'Gunaseelan',
+  23: 'Fauzan',
+  24: 'Hasliza',
+  25: 'Dayat',
+  26: 'Nani',
+  27: 'Faizal',
+  28: 'Taufiq',
+  29: 'Hana',
+  30: 'Masrizal',
+  31: 'Rosemeela',
+  33: 'Nuridzwan'
+}
+
+const FALLBACK_NAMES = [
+  'Ahmad bin Ismail', 'Siti Nurhaliza binti Tarudin', 'Mohd Zaki bin Ali', 'Noraini binti Othman',
+  'Razak bin Hamid', 'Faridah binti Kassim', 'Hisham bin Dollah', 'Zaharah binti Ahmad',
+  'Johari bin Mat Isa', 'Salbiah binti Hassan', 'Rashid bin Latiff', 'Azizah binti Dol',
+  'Roslan bin Salleh', 'Haliza binti Ghazali', 'Ismail bin Yaakob', 'Marina binti Zainuddin',
+  'Shakir bin Mokhtar', 'Fauziah binti Samad', 'Musa bin Lebai', 'Zubaidah binti Ismail',
+  'Majid bin Yusof', 'Rohani binti Majid', 'Harun bin Seman', 'Hasnah binti Awang',
+  'Bakar bin Din', 'Maznah binti Ariffin', 'Rahim bin Said', 'Saadiah binti Daud',
+  'Leman bin Ali', 'Latifah binti Shafie', 'Suleiman bin Jantan', 'Aminah binti Sarip',
+  'Din bin Mat', 'Kamariah binti Dolah', 'Ramli bin Tahir', 'Rokiah binti Puteh',
+  'Omar bin Sudin', 'Samsiah binti Kadir', 'Daud bin Hamzah', 'Zainab binti Mamat',
+  'Yusri bin Bakar', 'Norizan binti Ahmad', 'Halim bin Saad', 'Zakiah binti Darus',
+  'Nasir bin Long', 'Jamilah binti Ishak', 'Azman bin Lebai Teh', 'Normah binti Hashim',
+  'Sopian bin Manap', 'Kamsiah binti Awang', 'Hashim bin Abdullah', 'Salmiah binti Mohamad',
+  'Ridzuan bin Hassan', 'Nurul binti Rahman', 'Kassim bin Selamat', 'Maimunah binti Sudin',
+  'Wahid bin Osman',
+  'Aminuddin bin Arshad', 'Fazlina binti Razak', 'Khairuddin bin Mat Zin', 'Sharifah binti Syed Omar',
+  'Zamri bin Yusoff', 'Rohayu binti Sulaiman', 'Mansor bin Awang'
 ]
 
 function generateHouses() {
@@ -26,7 +59,7 @@ function generateHouses() {
     houses.push({
       id: `house-${i}`,
       house_number: `No. ${i}`,
-      owner_name: MOCK_NAMES[i - 1] || `Penduduk No. ${i}`,
+      owner_name: RESIDENTS[i] || FALLBACK_NAMES[i - 1] || `Penduduk No. ${i}`,
       phone: `01${Math.floor(10000000 + Math.random() * 89999999)}`,
       pin_hash: '$2b$10$mockHashForPIN1234',
       address: `Jalan Langat Utama 2/${((i - 1) % 4) + 1}`,
