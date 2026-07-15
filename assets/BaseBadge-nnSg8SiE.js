@@ -1,0 +1,1 @@
+import{_ as s,o as t,c as n,J as r,G as o}from"./index-BIAULMf6.js";const c={__name:"BaseBadge",props:{variant:{type:String,default:"default"}},setup(a){return(e,d)=>(t(),n("span",{class:o(["base-badge",a.variant])},[r(e.$slots,"default",{},void 0)],2))}},p=s(c,[["__scopeId","data-v-b6d7cbf9"]]);export{p as B};
