@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#f2f2f7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>E-Komuniti TLU2 — Pelan Perbelanjaan</title>
+<style>
+/* ============================================================
+   CSS Custom Properties — iOS Light Palette
+   ============================================================ */
+:root {
+  --bg: #f2f2f7;
+  --bg-elevated: #ffffff;
+  --bg-glass: rgba(255,255,255,0.78);
+  --primary: #007AFF;
+  --primary-light: rgba(0,122,255,0.12);
+  --success: #34C759;
+  --success-light: rgba(52,199,89,0.12);
+  --warning: #FF9500;
+  --warning-light: rgba(255,149,0,0.12);
+  --danger: #FF3B30;
+  --danger-light: rgba(255,59,48,0.12);
+  --purple: #AF52DE;
+  --purple-light: rgba(175,82,222,0.12);
+  --teal: #5AC8FA;
+  --teal-light: rgba(90,200,250,0.12);
+  --pink: #FF2D55;
+  --pink-light: rgba(255,45,85,0.12);
+  --text: #1c1c1e;
+  --text-secondary: #8e8e93;
+  --text-tertiary: #aeaeb2;
+  --separator: rgba(60,60,67,0.12);
+  --separator-light: rgba(60,60,67,0.06);
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 14px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.03);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.07), 0 2px 8px rgba(0,0,0,0.03);
+  --shadow-3d: 0 12px 40px rgba(0,0,0,0.1), 0 4px 14px rgba(0,0,0,0.05);
+  --shadow-button: 0 2px 8px rgba(0,122,255,0.25);
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  --font-display: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-body: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-mono: 'SF Mono', 'Menlo', 'Consolas', monospace;
+
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+button { cursor: pointer; }
+::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ============================================================
+   iOS Glass / Frosted Effects
+   ============================================================ */
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+}
+
+/* ============================================================
+   Cards — with 3D perspective
+   ============================================================ */
+.card {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--separator-light);
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.3s cubic-bezier(0.22,1,0.36,1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.card-3d {
+  perspective: 1200px;
+}
+.card-3d .card-inner {
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+.card-3d:hover .card-inner,
+.card-3d:active .card-inner {
+  box-shadow: var(--shadow-3d);
+}
+.card-3d:active .card-inner {
+  transform: scale(0.985);
+}
+
+/* ============================================================
+   Page Layout
+   ============================================================ */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--separator);
+}
+.header-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.header-btn {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+/* Main content area */
+.main-area {
+  flex: 1;
+  padding: 16px;
+  padding-bottom: calc(80px + var(--safe-bottom));
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Views */
+.view {
+  display: none;
+  flex-direction: column;
+  gap: 20px;
+  animation: viewEnter 0.3s ease-out;
+}
+.view.active { display: flex; }
+
+@keyframes viewEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   iOS Bottom Tab Bar
+   ============================================================ */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: calc(60px + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  border-top: 1px solid var(--separator);
+}
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 500;
+  transition: color 0.2s;
+  min-width: 60px;
+}
+.tab-item.active { color: var(--primary); }
+.tab-item svg { width: 22px; height: 22px; transition: transform 0.2s; }
+.tab-item:active svg { transform: scale(0.88); }
+
+/* ============================================================
+   Sidebar (desktop ≥1024px)
+   ============================================================ */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 260px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--separator);
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.sidebar.open { transform: translateX(0); }
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--separator);
+}
+.sidebar-brand-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--primary), var(--purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+  font-family: var(--font-display);
+}
+.sidebar-brand-name { font-weight: 600; font-size: 14px; }
+.sidebar-brand-sub { font-size: 11px; color: var(--text-secondary); }
+.sidebar-nav { flex: 1; overflow-y: auto; padding: 8px; }
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.15s;
+  margin-bottom: 2px;
+}
+.sidebar-nav a:hover { background: rgba(0,0,0,0.04); color: var(--text); }
+.sidebar-nav a.active { background: var(--primary-light); color: var(--primary); }
+.sidebar-nav a svg { width: 20px; height: 20px; opacity: 0.8; flex-shrink: 0; }
+.sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--separator);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sidebar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  background: rgba(0,0,0,0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.sidebar-overlay.show { opacity: 1; pointer-events: auto; }
+
+/* ============================================================
+   Desktop layout
+   ============================================================ */
+@media (min-width: 1024px) {
+  .main-area {
+    margin-left: 260px;
+    padding: 24px 32px;
+    padding-bottom: 24px;
+    max-width: calc(100vw - 260px);
+  }
+  .tab-bar { display: none; }
+  .sidebar { transform: translateX(0); }
+  .mobile-menu-btn { display: none; }
+  .sidebar-overlay { display: none !important; }
+}
+
+@media (max-width: 1023px) {
+  .sidebar-overlay.show { display: block; }
+}
+
+/* ============================================================
+   3D Card Tilt System
+   ============================================================ */
+.tilt-card {
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.4s cubic-bezier(0.22,1,0.36,1);
+}
+.tilt-card:hover {
+  box-shadow: var(--shadow-3d);
+}
+
+/* ============================================================
+   Section Headings
+   ============================================================ */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.section-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* ============================================================
+   Stat / KPI Cards
+   ============================================================ */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+.stat-card {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--separator-light);
+}
+.stat-card.accent-blue { background: linear-gradient(135deg, rgba(0,122,255,0.06), rgba(90,200,250,0.04)); border-color: rgba(0,122,255,0.15); }
+.stat-card.accent-green { background: linear-gradient(135deg, rgba(52,199,89,0.06), rgba(52,199,89,0.02)); border-color: rgba(52,199,89,0.15); }
+.stat-card.accent-orange { background: linear-gradient(135deg, rgba(255,149,0,0.06), rgba(255,149,0,0.02)); border-color: rgba(255,149,0,0.15); }
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.stat-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.stat-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Pelan Perbelanjaan — Donut Chart
+   ============================================================ */
+.donut-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.donut-wrap {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  perspective: 800px;
+}
+.donut-wrap svg {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+.donut-wrap:hover svg {
+  transform: rotateX(6deg) rotateY(-4deg);
+}
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.donut-center-total {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+}
+.donut-center-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.plan-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 360px;
+}
+.plan-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--separator-light);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+.plan-legend-item:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateX(4px);
+}
+.plan-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.plan-legend-info { flex: 1; min-width: 0; }
+.plan-legend-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.plan-legend-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+.plan-legend-right {
+  text-align: right;
+  flex-shrink: 0;
+}
+.plan-legend-pct {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.plan-legend-amount {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+
+/* ============================================================
+   Progress bars (iOS style)
+   ============================================================ */
+.progress {
+  width: 100%;
+  height: 6px;
+  background: rgba(120,120,128,0.12);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+.progress-fill.blue { background: var(--primary); }
+.progress-fill.green { background: var(--success); }
+.progress-fill.orange { background: var(--warning); }
+.progress-fill.red { background: var(--danger); }
+
+/* ============================================================
+   Budget Category Cards (monthly tracker)
+   ============================================================ */
+.budget-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+.budget-tile {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--separator-light);
+  transition: all 0.2s;
+}
+.budget-tile:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.budget-tile-icon { font-size: 20px; margin-bottom: 6px; }
+.budget-tile-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.budget-tile-amounts {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.budget-tile-spent {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+}
+.budget-tile-budget {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* ============================================================
+   Principles List
+   ============================================================ */
+.principles {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.principles li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  transition: background 0.15s;
+}
+.principles li:hover { background: rgba(0,0,0,0.02); }
+.principles li:not(:last-child) { border-bottom: 1px solid var(--separator-light); }
+.principles-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--success);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ============================================================
+   Table (ledger)
+   ============================================================ */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.data-table thead th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--separator);
+  white-space: nowrap;
+}
+.data-table tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--separator-light);
+  vertical-align: middle;
+}
+.data-table tbody tr { transition: background 0.15s; }
+.data-table tbody tr:hover { background: rgba(0,0,0,0.02); }
+.data-table tbody tr:last-child td { border-bottom: none; }
+
+.table-amount {
+  font-family: var(--font-display);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.table-date {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.table-desc {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .table-desc { max-width: 100px; }
+}
+
+/* ============================================================
+   Badges
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-blue { background: var(--primary-light); color: var(--primary); }
+.badge-green { background: var(--success-light); color: var(--success); }
+.badge-orange { background: var(--warning-light); color: var(--warning); }
+.badge-red { background: var(--danger-light); color: var(--danger); }
+.badge-purple { background: var(--purple-light); color: var(--purple); }
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  transition: all 0.2s cubic-bezier(0.22,1,0.36,1);
+  white-space: nowrap;
+}
+.btn:active { transform: scale(0.96); }
+.btn-primary { background: var(--primary); color: #fff; box-shadow: var(--shadow-button); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-outline {
+  background: var(--bg-elevated);
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+.btn-ghost:hover { background: rgba(0,0,0,0.04); color: var(--text); }
+.btn-danger-ghost {
+  background: transparent;
+  color: var(--danger);
+  font-size: 13px;
+  padding: 6px 12px;
+}
+.btn-danger-ghost:hover { background: var(--danger-light); }
+.btn-sm { padding: 6px 14px; font-size: 13px; }
+
+/* ============================================================
+   Filter row
+   ============================================================ */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.filter-select {
+  background: var(--bg-elevated);
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-sm);
+  padding: 8px 32px 8px 12px;
+  color: var(--text);
+  font-size: 14px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  outline: none;
+  cursor: pointer;
+}
+
+/* ============================================================
+   Empty state
+   ============================================================ */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+.empty-state-icon { font-size: 40px; margin-bottom: 8px; }
+.empty-state-text { font-size: 14px; }
+
+/* ============================================================
+   Toast
+   ============================================================ */
+.toast {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-lg);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out;
+}
+.toast.show { opacity: 1; }
+
+/* ============================================================
+   Modal
+   ============================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: var(--shadow-3d);
+  animation: modalIn 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.92) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.form-group { margin-bottom: 14px; }
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.form-input, .form-select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus { border-color: var(--primary); }
+.form-input::placeholder { color: var(--text-tertiary); }
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+/* ============================================================
+   Quick Action Buttons
+   ============================================================ */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+}
+.quick-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--separator-light);
+  box-shadow: var(--shadow-sm);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.quick-btn:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.quick-btn:active { transform: scale(0.96); }
+.quick-btn-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+/* ============================================================
+   Segment control
+   ============================================================ */
+.segment {
+  display: inline-flex;
+  background: rgba(120,120,128,0.1);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+.segment button {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.segment button.active {
+  background: var(--bg-elevated);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============================================================
+   House Grid
+   ============================================================ */
+.house-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+.house-card {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--separator-light);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.house-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.house-card-num { font-weight: 700; font-size: 15px; }
+.house-card-name { font-size: 12px; color: var(--text-secondary); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.house-card-status { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 11px; font-weight: 500; }
+
+/* ============================================================
+   Report Preview (for print/PDF)
+   ============================================================ */
+.report-preview {
+  background: #fff;
+  color: #000;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  min-height: 200px;
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.report-preview h2 { font-size: 18px; margin-bottom: 12px; }
+.report-preview h3 { font-size: 15px; margin: 16px 0 8px; }
+.report-preview table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+.report-preview th, .report-preview td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; font-size: 12px; }
+.report-preview th { background: #f5f5f5; font-weight: 600; }
+.report-preview .total-row { font-weight: 700; background: #fafafa; }
+.report-preview .footer { margin-top: 20px; padding-top: 12px; border-top: 1px solid #ccc; font-size: 10px; color: #888; text-align: center; }
+
+/* ============================================================
+   Reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .card-3d .card-inner { transition: none; }
+  .card-3d:hover .card-inner { transform: none; box-shadow: var(--shadow-md); }
+  .donut-wrap svg { transition: none; }
+  .donut-wrap:hover svg { transform: none; }
+  .tilt-card { transition: none; }
+}
+
+/* ============================================================
+   Responsive overrides
+   ============================================================ */
+@media (max-width: 480px) {
+  .main-area { padding: 12px; gap: 14px; }
+  .stat-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-value { font-size: 22px; }
+  .budget-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .donut-wrap { width: 220px; height: 220px; }
+  .house-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+  .data-table { font-size: 12px; }
+  .data-table thead th, .data-table tbody td { padding: 8px 10px; }
+  .section-title { font-size: 20px; }
+  .quick-actions { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+<!-- ===== HEADER ===== -->
+<header class="app-header glass">
+  <div style="display:flex;align-items:center;gap:10px">
+    <button class="mobile-menu-btn btn-ghost" onclick="toggleSidebar()" style="padding:6px;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center" aria-label="Menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+    </button>
+    <h1 class="header-title" id="page-title">Pelan Perbelanjaan</h1>
+  </div>
+  <button class="header-btn" onclick="showToast('Demo prototaip — data tidak disimpan')">Demo</button>
+</header>
+
+<!-- ===== SIDEBAR ===== -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+<aside class="sidebar glass" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-icon">T</div>
+    <div>
+      <div class="sidebar-brand-name">E-Komuniti</div>
+      <div class="sidebar-brand-sub">Taman Langat Utama 2</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="#dashboard" data-nav="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg> Papan Pemuka</a>
+    <a href="#houses" data-nav="houses"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/></svg> Senarai Rumah</a>
+    <a href="#payments" data-nav="payments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> Kutipan Bayaran</a>
+    <a href="#expenses" data-nav="expenses" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Perbelanjaan</a>
+    <a href="#reports" data-nav="reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg> Laporan</a>
+    <a href="#attendance" data-nav="attendance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Kehadiran</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-avatar">A</div>
+    <div>
+      <div style="font-size:13px;font-weight:500">Admin</div>
+      <div style="font-size:11px;color:var(--text-secondary)">Pengerusi</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<div class="main-area">
+
+  <!-- DASHBOARD -->
+  <section class="view active" id="view-dashboard">
+    <div class="stat-grid">
+      <div class="stat-card accent-blue tilt-card">
+        <div class="stat-label">Jumlah Baki</div>
+        <div class="stat-value" id="dash-balance">RM 0.00</div>
+        <div class="stat-sub"><span class="stat-dot" style="background:var(--success)"></span> Dana Terkumpul</div>
+      </div>
+      <div class="stat-card accent-orange tilt-card">
+        <div class="stat-label">Tunggakan</div>
+        <div class="stat-value" id="dash-arrears">RM 0.00</div>
+        <div class="stat-sub"><span class="stat-dot" style="background:var(--warning)"></span> <span id="dash-defaulter-count">0</span> Rumah</div>
+      </div>
+    </div>
+    <div class="quick-actions">
+      <button class="quick-btn" onclick="navigateTo('payments')"><div class="quick-btn-icon" style="background:var(--primary-light);color:var(--primary)">+</div>Rekod Bayaran</button>
+      <button class="quick-btn" onclick="navigateTo('expenses')"><div class="quick-btn-icon" style="background:var(--warning-light);color:var(--warning)">+</div>Tambah Belanja</button>
+      <button class="quick-btn" onclick="navigateTo('reports')"><div class="quick-btn-icon" style="background:var(--purple-light);color:var(--purple)">📄</div>Laporan</button>
+      <button class="quick-btn" onclick="copyWhatsApp()"><div class="quick-btn-icon" style="background:var(--success-light);color:var(--success)">💬</div>WhatsApp</button>
+    </div>
+  </section>
+
+  <!-- HOUSES -->
+  <section class="view" id="view-houses">
+    <div class="filter-row">
+      <input type="text" id="house-search" class="form-input" placeholder="Cari nama atau nombor rumah..." style="flex:1;max-width:300px" oninput="renderHouses()">
+      <div class="segment" id="house-segment">
+        <button class="active" onclick="filterHouses('all',this)">Semua</button>
+        <button onclick="filterHouses('unpaid',this)">Belum Bayar</button>
+        <button onclick="filterHouses('arrears',this)">Tunggakan</button>
+      </div>
+    </div>
+    <div class="house-grid" id="houses-grid"></div>
+  </section>
+
+  <!-- PAYMENTS -->
+  <section class="view" id="view-payments">
+    <div class="filter-row" style="justify-content:space-between">
+      <div class="segment" id="payment-segment">
+        <button class="active" onclick="filterPayments('pending',this)">Menunggu <span style="opacity:0.6" id="pending-count-tab"></span></button>
+        <button onclick="filterPayments('all',this)">Semua</button>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openPaymentModal()">+ Bayaran</button>
+    </div>
+    <div class="card" style="overflow-x:auto">
+      <table class="data-table">
+        <thead><tr><th>Tarikh</th><th>Rumah</th><th>Bulan</th><th>Jumlah</th><th>Rujukan</th><th>Status</th><th>Tindakan</th></tr></thead>
+        <tbody id="payments-table"></tbody>
+      </table>
+      <div id="payments-empty" class="empty-state hidden" style="display:none"><div class="empty-state-icon">📋</div><div class="empty-state-text">Tiada rekod bayaran</div></div>
+    </div>
+  </section>
+
+  <!-- EXPENSES — Pelan Perbelanjaan Jangka Panjang -->
+  <section class="view" id="view-expenses">
+    <!-- Pelan header -->
+    <div>
+      <div class="section-label">Pelan Perbelanjaan</div>
+      <div class="section-title">Jangka Panjang 2026</div>
+      <div class="section-subtitle">Berdasarkan yuran RM20/bulan × 40 rumah = RM800/bulan = RM9,600/tahun</div>
+    </div>
+
+    <!-- Donut chart + legend -->
+    <div class="card" style="padding:24px;display:flex;flex-direction:column;align-items:center;gap:20px">
+      <div class="donut-wrap" id="donut-wrap">
+        <svg viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(120,120,128,0.12)" stroke-width="20"/>
+          <g id="donut-segments"></g>
+          <circle cx="100" cy="100" r="70" fill="#fff"/>
+        </svg>
+        <div class="donut-center">
+          <div class="donut-center-total">RM 9,600</div>
+          <div class="donut-center-label">Peruntukan Tahunan</div>
+        </div>
+      </div>
+      <div class="plan-legend" id="plan-legend"></div>
+    </div>
+
+    <!-- Prinsip Pengurusan -->
+    <div>
+      <div class="section-label">Tadbir Urus</div>
+      <div class="section-title" style="font-size:18px">Prinsip Pengurusan Kewangan</div>
+    </div>
+    <div class="card">
+      <ul class="principles">
+        <li><span class="principles-icon">1</span> Semua perbelanjaan mesti diluluskan dalam Mesyuarat AJK</li>
+        <li><span class="principles-icon">2</span> Penyata kewangan dibentangkan setiap 3 atau 6 bulan kepada ahli</li>
+        <li><span class="principles-icon">3</span> Semua transaksi direkodkan dengan resit</li>
+        <li><span class="principles-icon">4</span> Akaun bank guna sekurang-kurangnya dua penandatangan</li>
+        <li><span class="principles-icon">5</span> Perubahan kadar yuran atau guna dana mesti melalui Mesyuarat Agung</li>
+      </ul>
+    </div>
+
+    <!-- Budget tracker -->
+    <div>
+      <div class="section-label">Pemantauan</div>
+      <div class="section-title" style="font-size:18px">Belanjawan Bulanan</div>
+    </div>
+    <div class="budget-grid" id="budget-grid"></div>
+
+    <!-- Expense Ledger -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div style="font-weight:700;font-size:17px">Buku Lejar Perbelanjaan</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <select class="filter-select" id="expense-filter" onchange="renderExpenses()"><option value="all">Semua Kategori</option></select>
+        <button class="btn btn-primary btn-sm" onclick="openExpenseModal()">+ Belanja</button>
+      </div>
+    </div>
+    <div class="card" style="overflow-x:auto">
+      <table class="data-table">
+        <thead><tr><th>Tarikh</th><th>Jumlah</th><th>Kategori</th><th>Penerangan</th><th></th></tr></thead>
+        <tbody id="expenses-table"></tbody>
+      </table>
+      <div id="expenses-empty" class="empty-state hidden" style="display:none"><div class="empty-state-icon">📒</div><div class="empty-state-text">Tiada rekod perbelanjaan</div></div>
+    </div>
+  </section>
+
+  <!-- REPORTS -->
+  <section class="view" id="view-reports">
+    <div class="card" style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px;padding:20px">
+      <div class="form-group" style="margin-bottom:0;flex:1;min-width:140px">
+        <label class="form-label">Jenis Laporan</label>
+        <select class="form-select" id="report-type" onchange="renderReport()"><option value="annual">Penyata Tahunan (AGM)</option><option value="monthly">Bulanan</option><option value="defaulter">Senarai Tunggakan</option></select>
+      </div>
+      <div class="form-group" style="margin-bottom:0;min-width:80px">
+        <label class="form-label">Tahun</label>
+        <select class="form-select" id="report-year" onchange="renderReport()"><option>2026</option><option>2025</option></select>
+      </div>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn btn-primary btn-sm" onclick="downloadPDF()">PDF</button>
+        <button class="btn btn-ghost btn-sm" onclick="window.print()">Cetak</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV()">CSV</button>
+      </div>
+    </div>
+    <div class="report-preview" id="report-preview"></div>
+  </section>
+
+  <!-- ATTENDANCE -->
+  <section class="view" id="view-attendance">
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat-card" style="text-align:center"><div class="stat-value" id="att-count">0</div><div class="stat-label">Hadir</div></div>
+      <div class="stat-card" style="text-align:center"><div class="stat-value" id="att-pct">0%</div><div class="stat-label">Peratusan</div></div>
+      <div class="stat-card" style="text-align:center"><div class="stat-value" id="att-quorum">-</div><div class="stat-label">Korum (32)</div></div>
+    </div>
+    <div class="card" style="padding:20px">
+      <div style="font-weight:700;font-size:17px;margin-bottom:16px">Kehadiran Mesyuarat</div>
+      <div class="house-grid" id="attendance-grid"></div>
+    </div>
+  </section>
+
+</div><!-- /main-area -->
+
+<!-- ===== TAB BAR ===== -->
+<nav class="tab-bar glass">
+  <button class="tab-item active" data-nav="dashboard" onclick="navigateTo('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <span>Papan</span>
+  </button>
+  <button class="tab-item" data-nav="houses" onclick="navigateTo('houses')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/></svg>
+    <span>Rumah</span>
+  </button>
+  <button class="tab-item" data-nav="expenses" onclick="navigateTo('expenses')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    <span>Belanja</span>
+  </button>
+  <button class="tab-item" data-nav="reports" onclick="navigateTo('reports')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+    <span>Laporan</span>
+  </button>
+</nav>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== EXPENSE MODAL ===== -->
+<div class="modal-overlay" id="expense-modal">
+  <div class="modal">
+    <div class="modal-title">Tambah Perbelanjaan</div>
+    <div class="form-group"><label class="form-label">Jumlah (RM)</label><input type="number" id="em-amount" class="form-input" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">Kategori</label><select id="em-category" class="form-select"></select></div>
+    <div class="form-group"><label class="form-label">Penerangan</label><input type="text" id="em-desc" class="form-input" placeholder="Contoh: Baiki lampu jalan"></div>
+    <div class="form-group"><label class="form-label">Tarikh</label><input type="date" id="em-date" class="form-input" value="2026-07-15"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeExpenseModal()">Batal</button>
+      <button class="btn btn-primary" onclick="submitExpense()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAYMENT MODAL ===== -->
+<div class="modal-overlay" id="payment-modal">
+  <div class="modal">
+    <div class="modal-title">Rekod Bayaran</div>
+    <div class="form-group"><label class="form-label">Rumah</label><select id="pm-house" class="form-select"></select></div>
+    <div class="form-group"><label class="form-label">Bulan</label><select id="pm-month" class="form-select"><option value="2026-07">Julai 2026</option><option value="2026-06">Jun 2026</option><option value="2026-05">Mei 2026</option></select></div>
+    <div class="form-group"><label class="form-label">Jumlah (RM)</label><input type="number" id="pm-amount" class="form-input" value="20"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closePaymentModal()">Batal</button>
+      <button class="btn btn-primary" onclick="submitPayment()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app-shell -->
+
+<script>
+// ============================================================
+// DATA — Pelan Perbelanjaan Jangka Panjang
+// ============================================================
+const TOTAL_HOUSES = 64;
+const MONTHS = ['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogos','Sep','Okt','Nov','Dis'];
+const MONTHS_FULL = ['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+
+const RESIDENTS={1:'En Hamzah',2:'Juned',5:'Ain',6:'Halim',7:'Kamarul',8:'Cikgu Dolah',9:'Ravi',10:'Shafinas',11:'Adam',12:'Shima',14:'Amir',15:'Kamil',16:'Ashraf',17:'Khairul',18:'Rafizal',20:'Wan',21:'Ujang',22:'Gunaseelan',23:'Fauzan',24:'Hasliza',25:'Dayat',26:'Nani',27:'Faizal',28:'Taufiq',29:'Hana',30:'Masrizal',31:'Rosemeela',33:'Nuridzwan'};
+const FALLBACK_NAMES=['Ahmad bin Ismail','Siti Nurhaliza binti Tarudin','Mohd Zaki bin Ali','Noraini binti Othman','Razak bin Hamid','Faridah binti Kassim','Hisham bin Dollah','Zaharah binti Ahmad','Johari bin Mat Isa','Salbiah binti Hassan','Rashid bin Latiff','Azizah binti Dol','Roslan bin Salleh','Haliza binti Ghazali','Ismail bin Yaakob','Marina binti Zainuddin','Shakir bin Mokhtar','Fauziah binti Samad','Musa bin Lebai','Zubaidah binti Ismail','Majid bin Yusof','Rohani binti Majid','Harun bin Seman','Hasnah binti Awang','Bakar bin Din','Maznah binti Ariffin','Rahim bin Said','Saadiah binti Daud','Leman bin Ali','Latifah binti Shafie','Suleiman bin Jantan','Aminah binti Sarip','Din bin Mat','Kamariah binti Dolah','Ramli bin Tahir','Rokiah binti Puteh','Omar bin Sudin','Samsiah binti Kadir','Daud bin Hamzah','Zainab binti Mamat','Yusri bin Bakar','Norizan binti Ahmad','Halim bin Saad','Zakiah binti Darus','Nasir bin Long','Jamilah binti Ishak','Azman bin Lebai Teh','Normah binti Hashim','Sopian bin Manap','Kamsiah binti Awang','Hashim bin Abdullah','Salmiah binti Mohamad','Ridzuan bin Hassan','Nurul binti Rahman','Kassim bin Selamat','Maimunah binti Sudin','Wahid bin Osman','Aminuddin bin Arshad','Fazlina binti Razak','Khairuddin bin Mat Zin','Sharifah binti Syed Omar','Zamri bin Yusoff','Rohayu binti Sulaiman','Mansor bin Awang'];
+
+const YEARLY_TOTAL = 9600;
+
+// 6 Kategori Pelan Perbelanjaan Jangka Panjang
+const EXPENSE_CATEGORIES = [
+  { id:'cat-1', name:'Dana Kebajikan & Bantuan Kecemasan', budget:240, pct:30, icon:'🤲', desc:'Bantuan banjir, kebakaran, kematian & keluarga memerlukan', color:'#007AFF' },
+  { id:'cat-2', name:'Khairat Kematian',                   budget:160, pct:20, icon:'🕊️', desc:'Sumbangan kematian, ziarah & bantuan segera', color:'#34C759' },
+  { id:'cat-3', name:'Program Komuniti & Perpaduan',       budget:120, pct:15, icon:'🎉', desc:'Hari Kebangsaan, gotong-royong, Hari Keluarga', color:'#FF9500' },
+  { id:'cat-4', name:'Penyelenggaraan Kemudahan Awam',     budget:120, pct:15, icon:'🔧', desc:'Baiki taman, papan tanda, cat kemudahan awam', color:'#AF52DE' },
+  { id:'cat-5', name:'Pentadbiran Persatuan',               budget:80,  pct:10, icon:'📋', desc:'Percetakan, alat tulis, jamuan mesyuarat', color:'#FF2D55' },
+  { id:'cat-6', name:'Dana Simpanan & Kecemasan',           budget:80,  pct:10, icon:'🏦', desc:'Simpanan projek besar & kecemasan luar jangka', color:'#5AC8FA' }
+];
+
+// Houses
+const houses=[];
+for(let i=1;i<=TOTAL_HOUSES;i++) houses.push({id:'house-'+i, house_number:'No. '+i, owner_name:RESIDENTS[i]||FALLBACK_NAMES[i-1]||'Penduduk No. '+i, phone:'01'+Math.floor(10000000+Math.random()*89999999), address:'Jalan Langat Utama 2/'+(((i-1)%4)+1)});
+
+// Payments
+const months_years=['2026-07','2026-06','2026-05','2026-04'];
+const unpaidHouses=new Set([3,4,6,8,13,15,17,19,22,24,27,29,32,34,38,41,44,47,50,53]);
+const payments=[];
+months_years.forEach((my,mi)=>{
+  for(let h=1;h<=TOTAL_HOUSES;h++){
+    const paid=mi===0?!unpaidHouses.has(h):(Math.random()>0.3);
+    if(!paid) continue;
+    const status=mi===0?(Math.random()>0.15?'approved':'pending'):'approved';
+    payments.push({id:'pay-'+h+'-'+mi, house_id:'house-'+h, amount:20, month_year:my, payment_method:Math.random()>0.5?'bank_transfer':'cash', bank_reference:Math.random()>0.5?'MBB'+Math.floor(Math.random()*10000000000):null, status, submitted_at:my+'-'+String(Math.floor(Math.random()*28)+1).padStart(2,'0'), reviewed_by:status==='approved'?'admin-1':null, reviewed_at:status==='approved'?my+'-'+String(Math.floor(Math.random()*28)+1).padStart(2,'0'):null});
+  }
+});
+
+// Expenses (new Pelan categories)
+const expenses=[
+  { id:'exp-1', amount:200, category_id:'cat-1', description:'Bantuan kepada keluarga memerlukan', expense_date:'2026-07-05' },
+  { id:'exp-2', amount:80,  category_id:'cat-3', description:'Gotong-royong perdana', expense_date:'2026-07-10' },
+  { id:'exp-3', amount:60,  category_id:'cat-5', description:'Alat tulis & percetakan borang', expense_date:'2026-07-12' },
+  { id:'exp-4', amount:100, category_id:'cat-4', description:'Baiki papan tanda & cat kemudahan', expense_date:'2026-06-18' },
+  { id:'exp-5', amount:150, category_id:'cat-2', description:'Sumbangan khairat kematian ahli', expense_date:'2026-06-20' },
+  { id:'exp-6', amount:30,  category_id:'cat-5', description:'Beli kertas & pen', expense_date:'2026-06-10' },
+  { id:'exp-7', amount:120, category_id:'cat-3', description:'Sambutan Hari Keluarga', expense_date:'2026-05-15' },
+  { id:'exp-8', amount:240, category_id:'cat-1', description:'Bantuan kecemasan kebakaran', expense_date:'2026-05-03' }
+];
+
+const attendanceSet=new Set(); for(let i=0;i<28;i++) attendanceSet.add('house-'+(Math.floor(Math.random()*60)+1));
+
+// ============================================================
+// HELPERS
+// ============================================================
+function findHouse(id){ return houses.find(h=>h.id===id) }
+function catById(cid){ return EXPENSE_CATEGORIES.find(x=>x.id===cid) }
+function monthLabel(my){ const[,m]=my.split('-'); return MONTHS[parseInt(m)-1] }
+function monthFull(my){ const[,m]=my.split('-'); return MONTHS_FULL[parseInt(m)-1] }
+function formatRM(n){ return 'RM '+n.toLocaleString() }
+function pad(n){ return String(n).padStart(2,'0') }
+
+// ============================================================
+// ROUTING
+// ============================================================
+let currentView='expenses', houseFilter='all', paymentFilter='pending';
+const pageTitles={dashboard:'Papan Pemuka',houses:'Senarai Rumah',payments:'Kutipan Bayaran',expenses:'Pelan Perbelanjaan',reports:'Laporan',attendance:'Kehadiran'};
+
+function navigateTo(view){
+  currentView=view;
+  document.getElementById('page-title').textContent=pageTitles[view]||'';
+  document.querySelectorAll('.view').forEach(v=>{v.classList.remove('active')});
+  const el=document.getElementById('view-'+view); if(el) el.classList.add('active');
+
+  // Tab bar
+  document.querySelectorAll('.tab-item').forEach(b=>{b.classList.toggle('active',b.dataset.nav===view)});
+  // Sidebar nav
+  document.querySelectorAll('.sidebar-nav a').forEach(a=>{a.classList.toggle('active',a.dataset.nav===view)});
+
+  location.hash=view;
+  setTimeout(()=>{
+    if(view==='dashboard') renderDashboard();
+    if(view==='houses') renderHouses();
+    if(view==='payments') renderPayments();
+    if(view==='expenses') renderExpenses();
+    if(view==='reports') renderReport();
+    if(view==='attendance') renderAttendance();
+  },10);
+}
+
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const ov=document.getElementById('sidebar-overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+}
+
+window.addEventListener('hashchange',()=>{ navigateTo(location.hash.replace('#','')||'expenses') });
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._timeout);
+  t._timeout=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard(){
+  const approved=payments.filter(p=>p.status==='approved');
+  const income=approved.reduce((s,p)=>s+p.amount,0);
+  const exp=expenses.reduce((s,e)=>s+e.amount,0);
+  const balance=income-exp;
+  const curMonth='2026-07';
+  const paidIds=new Set(approved.filter(p=>p.month_year===curMonth).map(p=>p.house_id));
+  const defIds=houses.filter(h=>!paidIds.has(h.id)).map(h=>h.id);
+  document.getElementById('dash-balance').textContent=formatRM(balance);
+  document.getElementById('dash-arrears').textContent=formatRM(defIds.length*20);
+  document.getElementById('dash-defaulter-count').textContent=defIds.length;
+}
+
+// ============================================================
+// HOUSES
+// ============================================================
+function filterHouses(f,btn){
+  houseFilter=f;
+  document.querySelectorAll('#house-segment button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHouses();
+}
+function renderHouses(){
+  const q=(document.getElementById('house-search').value||'').toLowerCase();
+  const curMonth='2026-07';
+  const paidIds=new Set(payments.filter(p=>p.status==='approved'&&p.month_year===curMonth).map(p=>p.house_id));
+  let list=houses;
+  if(q) list=list.filter(h=>h.house_number.toLowerCase().includes(q)||h.owner_name.toLowerCase().includes(q));
+  if(houseFilter==='unpaid') list=list.filter(h=>!paidIds.has(h.id));
+  if(houseFilter==='arrears'){ const allPaid=new Set(payments.filter(p=>p.status==='approved').map(p=>p.house_id)); list=list.filter(h=>!allPaid.has(h.id)) }
+  const grid=document.getElementById('houses-grid');
+  grid.innerHTML=list.map(h=>{
+    const isPaid=paidIds.has(h.id);
+    const dot=isPaid?'<span style="color:var(--success);font-size:14px">●</span>':'<span style="color:var(--danger);font-size:14px">●</span>';
+    return '<div class="house-card card-3d" onclick="showToast(\''+h.house_number+' - '+h.owner_name+'\')"><div class="house-card-inner" style="display:flex;flex-direction:column;height:100%"><div style="display:flex;justify-content:space-between"><span class="house-card-num">'+h.house_number+'</span>'+dot+'</div><div class="house-card-name">'+h.owner_name+'</div></div></div>';
+  }).join('');
+}
+
+// ============================================================
+// PAYMENTS
+// ============================================================
+function filterPayments(f,btn){
+  paymentFilter=f;
+  document.querySelectorAll('#payment-segment button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPayments();
+}
+function renderPayments(){
+  let list=paymentFilter==='pending'?payments.filter(p=>p.status==='pending'):payments;
+  list.sort((a,b)=>b.submitted_at.localeCompare(a.submitted_at));
+  document.getElementById('pending-count-tab').textContent='('+payments.filter(p=>p.status==='pending').length+')';
+  const tbody=document.getElementById('payments-table');
+  const empty=document.getElementById('payments-empty');
+  if(list.length===0){ empty.style.display='block'; tbody.innerHTML=''; return }
+  empty.style.display='none';
+  tbody.innerHTML=list.slice(0,50).map(p=>{
+    const h=findHouse(p.house_id);
+    const statusClass=p.status==='approved'?'badge badge-green':p.status==='pending'?'badge badge-orange':'badge badge-red';
+    const statusLabel=p.status==='approved'?'Diluluskan':p.status==='pending'?'Menunggu':'Ditolak';
+    const actions=p.status==='pending'?
+      '<button onclick="approvePayment(\''+p.id+'\')" class="btn btn-sm" style="background:var(--success-light);color:var(--success);margin-right:4px">Lulus</button>'+
+      '<button onclick="showToast(\'Pembayaran ditolak\')" class="btn btn-sm" style="background:var(--danger-light);color:var(--danger)">Tolak</button>'
+      :'<span style="font-size:12px;color:var(--text-tertiary)">—</span>';
+    return '<tr>'+
+      '<td class="table-date">'+p.submitted_at+'</td>'+
+      '<td>'+(h?h.house_number:'-')+'</td>'+
+      '<td>'+monthFull(p.month_year)+'</td>'+
+      '<td class="table-amount">'+formatRM(p.amount)+'</td>'+
+      '<td style="font-family:var(--font-mono);font-size:12px;color:var(--text-tertiary)">'+(p.bank_reference||'Tunai')+'</td>'+
+      '<td><span class="'+statusClass+'">'+statusLabel+'</span></td>'+
+      '<td>'+actions+'</td>'+
+    '</tr>';
+  }).join('');
+}
+function openPaymentModal(){
+  document.getElementById('pm-house').innerHTML='<option value="">Pilih Rumah</option>'+houses.map(h=>'<option value="'+h.id+'">'+h.house_number+' - '+h.owner_name+'</option>').join('');
+  document.getElementById('payment-modal').classList.add('show');
+}
+function closePaymentModal(){ document.getElementById('payment-modal').classList.remove('show') }
+function submitPayment(){
+  const hid=document.getElementById('pm-house').value, my=document.getElementById('pm-month').value, amt=parseInt(document.getElementById('pm-amount').value)||20;
+  if(!hid) return showToast('Sila pilih rumah');
+  payments.push({id:'pay-new-'+Date.now(),house_id:hid,amount:amt,month_year:my,payment_method:'cash',bank_reference:null,status:'approved',submitted_at:new Date().toISOString().slice(0,10),reviewed_by:'admin-1',reviewed_at:new Date().toISOString().slice(0,10)});
+  showToast('Bayaran direkod!'); closePaymentModal(); renderPayments(); renderDashboard();
+}
+function approvePayment(id){
+  const p=payments.find(x=>x.id===id); if(p){p.status='approved';p.reviewed_by='admin-1';p.reviewed_at=new Date().toISOString().slice(0,10)}
+  showToast('Bayaran diluluskan!'); renderPayments(); renderDashboard();
+}
+
+// ============================================================
+// EXPENSES — Pelan Perbelanjaan Jangka Panjang
+// ============================================================
+function renderExpenses(){
+  const catsSpent={};
+  expenses.forEach(e=>{ catsSpent[e.category_id]=(catsSpent[e.category_id]||0)+e.amount });
+
+  // Donut chart
+  const totalY=YEARLY_TOTAL;
+  const segs=document.getElementById('donut-segments');
+  let offset=0;
+  segs.innerHTML=EXPENSE_CATEGORIES.map(c=>{
+    const pct=c.pct/100;
+    const dash=2*Math.PI*80*pct;
+    const gap=2*Math.PI*80;
+    const dashOffset=gap-offset*(2*Math.PI*80/100);
+    offset+=c.pct;
+    return '<circle cx="100" cy="100" r="80" fill="none" stroke="'+c.color+'" stroke-width="20" stroke-dasharray="'+dash+' '+(gap-dash)+'" stroke-dashoffset="-'+dashOffset+'" stroke-linecap="butt" transform="rotate(-90 100 100)" style="transition:stroke-dasharray 0.5s ease-out, opacity 0.3s"/>';
+  }).join('');
+
+  // Legend
+  document.getElementById('plan-legend').innerHTML=EXPENSE_CATEGORIES.map(c=>{
+    const yearly=(c.pct/100)*totalY;
+    return '<div class="plan-legend-item">'+
+      '<div class="plan-legend-dot" style="background:'+c.color+'"></div>'+
+      '<div class="plan-legend-info"><div class="plan-legend-name">'+c.name+'</div><div class="plan-legend-desc">'+c.desc+'</div></div>'+
+      '<div class="plan-legend-right"><div class="plan-legend-pct">'+c.pct+'%</div><div class="plan-legend-amount">RM '+yearly.toLocaleString()+'/tahun</div></div>'+
+    '</div>';
+  }).join('');
+
+  // Budget tracker tiles
+  document.getElementById('budget-grid').innerHTML=EXPENSE_CATEGORIES.map(c=>{
+    const spent=catsSpent[c.id]||0, pct=Math.min(100,Math.round(spent/c.budget*100)), over=spent>c.budget;
+    const barColor=over?'red':pct>75?'orange':'green';
+    return '<div class="budget-tile">'+
+      '<div class="budget-tile-icon">'+c.icon+'</div>'+
+      '<div class="budget-tile-name">'+c.name+'</div>'+
+      '<div class="budget-tile-amounts"><span class="budget-tile-spent">'+formatRM(spent)+'</span><span class="budget-tile-budget">/ RM '+c.budget+'</span></div>'+
+      '<div class="progress"><div class="progress-fill '+barColor+'" style="width:'+pct+'%"></div></div>'+
+      (over?'<div style="font-size:11px;color:var(--danger);margin-top:6px;font-weight:500">⚠ Melebihi belanjawan</div>':'')+
+    '</div>';
+  }).join('');
+
+  // Expense filter
+  document.getElementById('expense-filter').innerHTML='<option value="all">Semua Kategori</option>'+EXPENSE_CATEGORIES.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('');
+
+  // Table
+  const cat=document.getElementById('expense-filter').value;
+  let list=cat==='all'?expenses:expenses.filter(e=>e.category_id===cat);
+  list.sort((a,b)=>b.expense_date.localeCompare(a.expense_date));
+  const tbody=document.getElementById('expenses-table');
+  const empty=document.getElementById('expenses-empty');
+  if(list.length===0){ empty.style.display='block'; tbody.innerHTML=''; return }
+  empty.style.display='none';
+  tbody.innerHTML=list.map(e=>{
+    const c=catById(e.category_id);
+    return '<tr>'+
+      '<td class="table-date">'+e.expense_date+'</td>'+
+      '<td class="table-amount">'+formatRM(e.amount)+'</td>'+
+      '<td><span class="badge" style="color:'+(c?c.color:'var(--text)')+';background:'+(c?c.color:'var(--separator)')+'20">'+(c?c.name:e.category_id)+'</span></td>'+
+      '<td class="table-desc">'+e.description+'</td>'+
+      '<td><button onclick="deleteExpense(\''+e.id+'\')" class="btn-danger-ghost">Padam</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function openExpenseModal(){
+  document.getElementById('em-category').innerHTML=EXPENSE_CATEGORIES.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('');
+  document.getElementById('expense-modal').classList.add('show');
+}
+function closeExpenseModal(){ document.getElementById('expense-modal').classList.remove('show') }
+function submitExpense(){
+  const amt=parseInt(document.getElementById('em-amount').value), cat=document.getElementById('em-category').value, desc=document.getElementById('em-desc').value, dt=document.getElementById('em-date').value;
+  if(!amt||!desc) return showToast('Sila isi semua ruangan');
+  expenses.push({id:'exp-'+Date.now(),amount:amt,category_id:cat,description:desc,expense_date:dt});
+  showToast('Perbelanjaan ditambah!'); closeExpenseModal(); renderExpenses(); renderDashboard();
+}
+function deleteExpense(id){
+  const idx=expenses.findIndex(e=>e.id===id);
+  if(idx!==-1){ expenses.splice(idx,1); showToast('Dipadam'); renderExpenses(); renderDashboard(); }
+}
+
+// ============================================================
+// REPORTS
+// ============================================================
+function renderReport(){
+  const type=document.getElementById('report-type').value, preview=document.getElementById('report-preview');
+  const approved=payments.filter(p=>p.status==='approved'), income=approved.reduce((s,p)=>s+p.amount,0), expense=expenses.reduce((s,e)=>s+e.amount,0);
+  if(type==='annual'){
+    const cats={}; expenses.forEach(e=>{ cats[e.category_id]=(cats[e.category_id]||0)+e.amount });
+    preview.innerHTML=
+      '<h2>Penyata Kewangan Tahunan 2026</h2>'+
+      '<table><tr><td>Kutipan Yuran</td><td style="text-align:right">RM '+(TOTAL_HOUSES*20*12).toLocaleString()+'.00</td></tr>'+
+      '<tr><td>Jumlah Perbelanjaan</td><td style="text-align:right">RM '+expense.toLocaleString()+'.00</td></tr>'+
+      '<tr class="total-row"><td><strong>Baki Akhir</strong></td><td style="text-align:right"><strong>RM '+(TOTAL_HOUSES*20*12-expense).toLocaleString()+'.00</strong></td></tr></table>'+
+      '<h4>Perbelanjaan Mengikut Kategori</h4><table>'+
+      EXPENSE_CATEGORIES.map(c=>'<tr><td>'+c.name+'</td><td style="text-align:right">RM '+(cats[c.id]||0).toLocaleString()+'.00</td></tr>').join('')+
+      '</table>'+
+      '<div class="footer">Dijana oleh E-Komuniti TLU2 pada '+new Date().toLocaleDateString('ms-MY')+'</div>';
+  } else if(type==='monthly'){
+    const rows=[];
+    for(let m=1;m<=7;m++){
+      const my='2026-'+pad(m);
+      const amt=approved.filter(p=>p.month_year===my).reduce((s,p)=>s+p.amount,0);
+      const count=new Set(approved.filter(p=>p.month_year===my).map(p=>p.house_id)).size;
+      const pct=Math.round(count/TOTAL_HOUSES*100);
+      rows.push('<tr><td>'+MONTHS_FULL[m-1]+'</td><td style="text-align:right">RM '+amt.toLocaleString()+'</td><td style="text-align:right">'+count+' rumah</td><td style="text-align:right">'+pct+'%</td></tr>');
+    }
+    preview.innerHTML='<h2>Kutipan Bulanan 2026</h2><table><tr><th>Bulan</th><th>Jumlah</th><th>Rumah</th><th>%</th></tr>'+rows.join('')+'</table><div class="footer">Dijana oleh E-Komuniti TLU2</div>';
+  } else {
+    const curMonth='2026-07';
+    const paidIds=new Set(approved.filter(p=>p.month_year===curMonth).map(p=>p.house_id));
+    const defs=houses.filter(h=>!paidIds.has(h.id));
+    preview.innerHTML='<h2>Senarai Tunggakan — Julai 2026</h2><table><tr><th>No.</th><th>Rumah</th><th>Nama</th><th>Jumlah</th></tr>'+
+      defs.map((h,i)=>'<tr><td>'+(i+1)+'</td><td>'+h.house_number+'</td><td>'+h.owner_name+'</td><td style="text-align:right">RM 20.00</td></tr>').join('')+
+      '</table><p style="margin-top:16px;font-weight:600">Jumlah: '+defs.length+' rumah | RM '+(defs.length*20).toLocaleString()+'.00</p>'+
+      '<div class="footer">Dijana oleh E-Komuniti TLU2</div>';
+  }
+}
+function downloadPDF(){ window.print() }
+function exportCSV(){
+  let csv='No.,Rumah,Nama\n';
+  houses.forEach((h,i)=>{ csv+=(i+1)+','+h.house_number+',"'+h.owner_name+'"\n' });
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='senarai-rumah-tlu2.csv'; a.click();
+}
+
+// ============================================================
+// ATTENDANCE
+// ============================================================
+function renderAttendance(){
+  const c=attendanceSet.size;
+  document.getElementById('att-count').textContent=c;
+  document.getElementById('att-pct').textContent=Math.round(c/TOTAL_HOUSES*100)+'%';
+  document.getElementById('att-quorum').textContent=c>=32?'Korum ('+c+')':'Tiada ('+c+')';
+  document.getElementById('att-quorum').style.color=c>=32?'var(--success)':'var(--danger)';
+  document.getElementById('attendance-grid').innerHTML=houses.map(h=>{
+    const present=attendanceSet.has(h.id);
+    return '<div class="house-card" style="cursor:pointer;'+(present?'border-color:var(--success);border-width:2px;background:rgba(52,199,89,0.05)':'')+'" onclick="toggleAttendance(\''+h.id+'\')"><div class="house-card-num">'+h.house_number+'</div><div class="house-card-name">'+h.owner_name+'</div><div class="house-card-status">'+(present?'<span style="color:var(--success)">✓ Hadir</span>':'<span style="color:var(--text-tertiary)">Ketik untuk hadir</span>')+'</div></div>';
+  }).join('');
+}
+function toggleAttendance(id){
+  if(attendanceSet.has(id)) attendanceSet.delete(id); else attendanceSet.add(id);
+  renderAttendance();
+}
+
+// ============================================================
+// WHATSAPP
+// ============================================================
+function copyWhatsApp(){
+  const curMonth='2026-07', paidIds=new Set(payments.filter(p=>p.status==='approved'&&p.month_year===curMonth).map(p=>p.house_id));
+  const defs=houses.filter(h=>!paidIds.has(h.id));
+  const text='Assalamualaikum/Salam Sejahtera,\n\nIni peringatan bayaran yuran bulanan RM20 untuk '+monthFull(curMonth)+' 2026.\n\nRumah belum bayar:\n'+defs.map(h=>h.house_number+' - '+h.owner_name).join('\n')+'\n\nSila buat bayaran segera. Terima kasih.\n- AJK TLU2';
+  navigator.clipboard.writeText(text).then(()=>showToast('Mesej disalin!')).catch(()=>showToast('Gagal menyalin'));
+}
+
+// ============================================================
+// 3D TILT EFFECT (passive, added to all .tilt-card elements)
+// ============================================================
+document.addEventListener('mousemove',function(e){
+  document.querySelectorAll('.tilt-card').forEach(card=>{
+    const rect=card.getBoundingClientRect();
+    const x=e.clientX-rect.left, y=e.clientY-rect.top;
+    const cx=rect.width/2, cy=rect.height/2;
+    const rotateX=((y-cy)/cy)*-6;
+    const rotateY=((x-cx)/cx)*6;
+    if(x>0&&y>0&&x<rect.width&&y<rect.height){
+      card.style.transform='perspective(1000px) rotateX('+rotateX+'deg) rotateY('+rotateY+'deg) scale(1.02)';
+    } else {
+      card.style.transform='perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+    }
+  });
+});
+
+// ============================================================
+// INIT
+// ============================================================
+function init(){
+  navigateTo('expenses');
+}
+init();
+</script>
+</body>
+</html>
