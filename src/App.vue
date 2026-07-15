@@ -69,4 +69,9 @@ onUnmounted(() => window.removeEventListener('resize', handleResize))
 .main-content {
   flex: 1;
 }
+@media (min-width: 1024px) {
+  .main-col {
+    margin-left: var(--sidebar-width);
+  }
+}
 </style>

@@ -26,27 +26,30 @@
       </div>
     </div>
 
-    <!-- Progress ring -->
-    <div class="glass-card ring-card">
-      <div class="section-label">{{ $t('dashboard.collectionProgress') }}</div>
-      <div class="ring-wrap">
-        <svg viewBox="0 0 200 200" class="ring-svg">
-          <circle cx="100" cy="100" r="85" stroke="var(--color-bg-tertiary)" stroke-width="14" fill="none"/>
-          <circle cx="100" cy="100" r="85" stroke="ringColor" stroke-width="14" fill="none"
-                  :stroke-dasharray="dashArray" :stroke-dashoffset="dashOffset"
-                  stroke-linecap="round" transform="rotate(-90 100 100)"
-                  :style="{ stroke: ringColor, transition: 'stroke-dashoffset 0.8s ease-out' }"/>
-          <text x="100" y="95" text-anchor="middle" fill="var(--color-text-primary)" font-size="22" font-weight="700" font-family="var(--font-display)">{{ paidCount }} / {{ totalHouses }}</text>
-          <text x="100" y="120" text-anchor="middle" fill="var(--color-text-secondary)" font-size="13">{{ $t('dashboard.paid') }} ({{ percentPaid }}%)</text>
-        </svg>
+    <!-- Mid row: ring + chart side by side on desktop -->
+    <div class="mid-row">
+      <!-- Progress ring -->
+      <div class="glass-card ring-card">
+        <div class="section-label">{{ $t('dashboard.collectionProgress') }}</div>
+        <div class="ring-wrap">
+          <svg viewBox="0 0 200 200" class="ring-svg">
+            <circle cx="100" cy="100" r="85" stroke="var(--color-bg-tertiary)" stroke-width="14" fill="none"/>
+            <circle cx="100" cy="100" r="85" stroke="ringColor" stroke-width="14" fill="none"
+                    :stroke-dasharray="dashArray" :stroke-dashoffset="dashOffset"
+                    stroke-linecap="round" transform="rotate(-90 100 100)"
+                    :style="{ stroke: ringColor, transition: 'stroke-dashoffset 0.8s ease-out' }"/>
+            <text x="100" y="95" text-anchor="middle" fill="var(--color-text-primary)" font-size="22" font-weight="700" font-family="var(--font-display)">{{ paidCount }} / {{ totalHouses }}</text>
+            <text x="100" y="120" text-anchor="middle" fill="var(--color-text-secondary)" font-size="13">{{ $t('dashboard.paid') }} ({{ percentPaid }}%)</text>
+          </svg>
+        </div>
       </div>
-    </div>
 
-    <!-- Cashflow chart -->
-    <div class="glass-card">
-      <div class="section-label">{{ $t('dashboard.cashflow') }}</div>
-      <div class="chart-wrap">
-        <Bar :data="cashflowData" :options="chartOptions" />
+      <!-- Cashflow chart -->
+      <div class="glass-card chart-card">
+        <div class="section-label">{{ $t('dashboard.cashflow') }}</div>
+        <div class="chart-wrap">
+          <Bar :data="cashflowData" :options="chartOptions" />
+        </div>
       </div>
     </div>
 
@@ -178,56 +181,112 @@ const { generateReminder, copyToClipboard, copied } = useWhatsApp()
   font-size: var(--text-sm);
 }
 
+/* Stat grid */
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
-@media (max-width: 480px) { .stat-grid { grid-template-columns: 1fr 1fr; } }
-
+@media (min-width: 480px) {
+  .stat-grid { gap: 12px; }
+}
 .stat-card {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-2xl);
-  padding: 18px 20px;
+  padding: 16px 18px;
   box-shadow: var(--shadow-sm);
+}
+@media (min-width: 480px) {
+  .stat-card { padding: 18px 20px; }
 }
 .stat-card.accent-blue { background: linear-gradient(135deg, rgba(0,122,255,0.05), rgba(90,200,250,0.03)); border-color: rgba(0,122,255,0.12); }
 .stat-card.accent-orange { background: linear-gradient(135deg, rgba(255,149,0,0.05), rgba(255,149,0,0.02)); border-color: rgba(255,149,0,0.12); }
 
-.stat-label { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-secondary); margin-bottom: 4px; }
-.stat-value { font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: var(--color-text-primary); }
-.stat-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 6px; display: flex; align-items: center; gap: 6px; }
+.stat-label { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-secondary); margin-bottom: 2px; }
+.stat-value { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--color-text-primary); }
+@media (min-width: 480px) {
+  .stat-value { font-size: 26px; }
+}
+.stat-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 4px; display: flex; align-items: center; gap: 6px; }
 .stat-dot { width: 6px; height: 6px; border-radius: 50%; }
 
 .section-label { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-secondary); margin-bottom: var(--space-3); }
 
-.ring-card { padding: var(--space-5); display: flex; flex-direction: column; }
-.ring-wrap { display: flex; justify-content: center; }
-.ring-svg { width: 200px; height: 200px; }
+/* Mid row: ring + chart */
+.mid-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+@media (min-width: 600px) {
+  .mid-row {
+    grid-template-columns: 1fr 2fr;
+  }
+}
 
-.chart-wrap { height: 220px; }
+.ring-card {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+}
+.ring-wrap {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.ring-svg {
+  width: 100%;
+  max-width: 180px;
+  height: auto;
+}
 
-.defaulter-list { display: flex; flex-direction: column; gap: 4px; max-height: 280px; overflow-y: auto; }
-.defaulter-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-md); font-size: var(--text-sm); border-bottom: 1px solid rgba(60,60,67,0.06); }
+.chart-card {
+  padding: var(--space-4);
+}
+.chart-wrap {
+  height: 220px;
+}
+@media (max-width: 600px) {
+  .chart-wrap { height: 200px; }
+}
+
+/* Defaulters */
+.defaulter-list { display: flex; flex-direction: column; gap: 2px; max-height: 320px; overflow-y: auto; }
+.defaulter-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  border-bottom: 1px solid rgba(60,60,67,0.06);
+}
 .defaulter-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.defaulter-house { font-weight: 600; min-width: 55px; }
+.defaulter-house { font-weight: 600; min-width: 50px; }
 .defaulter-name { color: var(--color-text-secondary); font-size: var(--text-xs); }
 
-.quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; }
-@media (max-width: 480px) { .quick-actions { grid-template-columns: 1fr 1fr; } }
+/* Quick actions */
+.quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 400px) {
+  .quick-actions { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+}
 .quick-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
-  padding: 16px 12px; border-radius: var(--radius-md);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 14px 8px; border-radius: var(--radius-md);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
-  font-size: 12px; font-weight: 600; color: var(--color-text-primary);
+  font-size: 11px; font-weight: 600; color: var(--color-text-primary);
   transition: all 0.2s; cursor: pointer;
+}
+@media (min-width: 480px) {
+  .quick-btn { padding: 16px 12px; font-size: 12px; gap: 8px; }
 }
 .quick-btn:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
 .quick-btn:active { transform: scale(0.96); }
-.quick-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; }
+.quick-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; }
+@media (min-width: 480px) {
+  .quick-icon { width: 40px; height: 40px; font-size: 20px; }
+}
 
 .text-danger { color: var(--color-danger); }
 </style>
