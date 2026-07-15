@@ -83,7 +83,7 @@
     "noPending": "Tiada bayaran menunggu pengesahan"
   },
   "expenses": {
-    "title": "Pengurusan Perbelanjaan",
+    "title": "Pelan Perbelanjaan Jangka Panjang",
     "addExpense": "Tambah Perbelanjaan",
     "amount": "Amaun (RM)",
     "description": "Penerangan",
@@ -96,11 +96,21 @@
     "budget": "Belanjawan",
     "spent": "Dibelanjakan",
     "overBudget": "Melebihi belanjawan",
-    "categoryTracker": "Pemantau Kategori Belanjawan",
+    "categoryTracker": "Pemantau Belanjawan Bulanan",
     "ledger": "Buku Lejar Perbelanjaan",
     "filterCategory": "Tapis mengikut kategori",
     "allCategories": "Semua Kategori",
-    "confirmDelete": "Adakah anda pasti ingin menghapuskan rekod ini?"
+    "confirmDelete": "Adakah anda pasti ingin menghapuskan rekod ini?",
+    "longTermPlan": "Pelan Perbelanjaan Jangka Panjang",
+    "planBasedOn": "Berdasarkan yuran keahlian RM{fee}/bulan/rumah × {houses} buah rumah = RM{monthly}/bulan = RM{yearly}/tahun",
+    "perYear": "tahun",
+    "spentThisYear": "Dibelanjakan tahun ini",
+    "principles": "Prinsip Pengurusan Kewangan",
+    "principle1": "Semua perbelanjaan mesti diluluskan dalam Mesyuarat AJK",
+    "principle2": "Penyata kewangan dibentangkan setiap 3 atau 6 bulan kepada ahli",
+    "principle3": "Semua transaksi direkodkan dengan resit",
+    "principle4": "Akaun bank menggunakan sekurang-kurangnya dua penandatangan (Pengerusi dan Bendahari, atau Bendahari dan Setiausaha)",
+    "principle5": "Sebarang perubahan kadar yuran atau penggunaan dana mesti mendapat persetujuan ahli melalui Mesyuarat Agung"
   },
   "penubuhan": {
     "title": "Modul Penubuhan",

@@ -83,7 +83,7 @@
     "noPending": "No payments awaiting approval"
   },
   "expenses": {
-    "title": "Expense Management",
+    "title": "Long-Term Spending Plan",
     "addExpense": "Add Expense",
     "amount": "Amount (RM)",
     "description": "Description",
@@ -96,11 +96,21 @@
     "budget": "Budget",
     "spent": "Spent",
     "overBudget": "Over budget",
-    "categoryTracker": "Category Budget Tracker",
+    "categoryTracker": "Monthly Budget Tracker",
     "ledger": "Expense Ledger",
     "filterCategory": "Filter by category",
     "allCategories": "All Categories",
-    "confirmDelete": "Are you sure you want to delete this record?"
+    "confirmDelete": "Are you sure you want to delete this record?",
+    "longTermPlan": "Long-Term Spending Plan",
+    "planBasedOn": "Based on membership fees of RM{fee}/month/house × {houses} houses = RM{monthly}/month = RM{yearly}/year",
+    "perYear": "year",
+    "spentThisYear": "Spent this year",
+    "principles": "Financial Management Principles",
+    "principle1": "All expenditures must be approved at the AJK Meeting",
+    "principle2": "Financial statements presented every 3 or 6 months to members",
+    "principle3": "All transactions recorded with receipts",
+    "principle4": "Bank account requires at least two signatories (Chairman and Treasurer, or Treasurer and Secretary)",
+    "principle5": "Any changes to fee rates or fund usage must obtain member approval through the General Meeting"
   },
   "penubuhan": {
     "title": "Establishment Module",

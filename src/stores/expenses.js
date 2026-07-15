@@ -2,28 +2,25 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getCurrentMonthYear, getMonthsAgo } from '@/lib/utils'
 
+const YEARLY_TOTAL = 9600
+const MONTHLY_TOTAL = 800
+
 const MOCK_CATEGORIES = [
-  { id: 'cat-1', name_bm: 'Yuran Kawalan Keselamatan', name_en: 'Security Guard Services', monthly_budget: 800, phase: 'operasi', is_active: true },
-  { id: 'cat-2', name_bm: 'Penyelenggaraan Lampu Jalan', name_en: 'Street Light Maintenance', monthly_budget: 100, phase: 'operasi', is_active: true },
-  { id: 'cat-3', name_bm: 'Kos Potong Rumput / Landskap', name_en: 'Grass Cutting & Landscaping', monthly_budget: 300, phase: 'operasi', is_active: true },
-  { id: 'cat-4', name_bm: 'Sukaneka / Jamuan Penduduk', name_en: 'Community Events & Sports', monthly_budget: 0, phase: 'operasi', is_active: true },
-  { id: 'cat-5', name_bm: 'Alat Tulis & Pentadbiran', name_en: 'Stationery & Admin Costs', monthly_budget: 50, phase: 'operasi', is_active: true },
-  { id: 'cat-6', name_bm: 'Persiapan Makan Minum Mesyuarat', name_en: 'Meeting Catering & F&B', monthly_budget: 150, phase: 'sebelum', is_active: true },
-  { id: 'cat-7', name_bm: 'Kos Cetakan Log & Borang', name_en: 'Logbooks & Forms Printing', monthly_budget: 50, phase: 'sebelum', is_active: true },
-  { id: 'cat-8', name_bm: 'Yuran Pendaftaran e-ROSES', name_en: 'e-ROSES Registration Fee', monthly_budget: 30, phase: 'selepas', is_active: true },
-  { id: 'cat-9', name_bm: 'Cop Rasmi Persatuan', name_en: 'Official Stamps', monthly_budget: 100, phase: 'selepas', is_active: true }
+  { id: 'cat-1', name_bm: 'Dana Kebajikan & Bantuan Kecemasan', name_en: 'Welfare & Emergency Aid Fund', monthly_budget: 240, yearly_pct: 30, phase: 'operasi', is_active: true },
+  { id: 'cat-2', name_bm: 'Khairat Kematian', name_en: 'Death Benevolence Fund', monthly_budget: 160, yearly_pct: 20, phase: 'operasi', is_active: true },
+  { id: 'cat-3', name_bm: 'Program Komuniti & Perpaduan', name_en: 'Community & Unity Programmes', monthly_budget: 120, yearly_pct: 15, phase: 'operasi', is_active: true },
+  { id: 'cat-4', name_bm: 'Penyelenggaraan Kemudahan Awam', name_en: 'Public Facilities Maintenance', monthly_budget: 120, yearly_pct: 15, phase: 'operasi', is_active: true },
+  { id: 'cat-5', name_bm: 'Pentadbiran Persatuan', name_en: 'Association Administration', monthly_budget: 80, yearly_pct: 10, phase: 'operasi', is_active: true },
+  { id: 'cat-6', name_bm: 'Dana Simpanan/Kecemasan', name_en: 'Savings/Emergency Fund', monthly_budget: 80, yearly_pct: 10, phase: 'operasi', is_active: true }
 ]
 
 const now = getCurrentMonthYear()
 const MOCK_EXPENSES = [
-  { id: 'exp-1', amount: 800, category_id: 'cat-1', description: 'Bayaran kawalan keselamatan bulan ini', receipt_image_url: null, expense_date: `${now}-05`, created_by: 'adm-2', created_at: `${now}-05T09:00:00Z` },
-  { id: 'exp-2', amount: 300, category_id: 'cat-3', description: 'Kos potong rumput taman', receipt_image_url: null, expense_date: `${now}-08`, created_by: 'adm-2', created_at: `${now}-08T14:00:00Z` },
-  { id: 'exp-3', amount: 45, category_id: 'cat-5', description: 'Beli kertas A4 & pen', receipt_image_url: null, expense_date: `${now}-12`, created_by: 'adm-3', created_at: `${now}-12T11:00:00Z` },
-  { id: 'exp-4', amount: 80, category_id: 'cat-2', description: 'Tukar mentol lampu jalan no.25', receipt_image_url: null, expense_date: `${now}-18`, created_by: 'adm-2', created_at: `${now}-18T16:00:00Z` },
-  { id: 'exp-5', amount: 150, category_id: 'cat-6', description: 'Katering mesyuarat AJK', receipt_image_url: null, expense_date: `${now}-20`, created_by: 'adm-1', created_at: `${now}-20T19:00:00Z` },
-  { id: 'exp-6', amount: 800, category_id: 'cat-1', description: 'Bayaran kawalan keselamatan bulan lepas', receipt_image_url: null, expense_date: `${getMonthsAgo(1)}-05`, created_by: 'adm-2', created_at: `${getMonthsAgo(1)}-05T09:00:00Z` },
-  { id: 'exp-7', amount: 280, category_id: 'cat-3', description: 'Kos potong rumput taman (bulan lepas)', receipt_image_url: null, expense_date: `${getMonthsAgo(1)}-09`, created_by: 'adm-2', created_at: `${getMonthsAgo(1)}-09T14:00:00Z` },
-  { id: 'exp-8', amount: 800, category_id: 'cat-1', description: 'Bayaran kawalan keselamatan 2 bulan lepas', receipt_image_url: null, expense_date: `${getMonthsAgo(2)}-05`, created_by: 'adm-2', created_at: `${getMonthsAgo(2)}-05T09:00:00Z` }
+  { id: 'exp-1', amount: 200, category_id: 'cat-1', description: 'Bantuan kepada keluarga memerlukan', receipt_image_url: null, expense_date: `${now}-05`, created_by: 'adm-2', created_at: `${now}-05T09:00:00Z` },
+  { id: 'exp-2', amount: 80, category_id: 'cat-3', description: 'Gotong-royong perdana', receipt_image_url: null, expense_date: `${now}-10`, created_by: 'adm-2', created_at: `${now}-10T14:00:00Z` },
+  { id: 'exp-3', amount: 60, category_id: 'cat-5', description: 'Alat tulis & percetakan borang', receipt_image_url: null, expense_date: `${now}-12`, created_by: 'adm-3', created_at: `${now}-12T11:00:00Z` },
+  { id: 'exp-4', amount: 100, category_id: 'cat-4', description: 'Baiki papan tanda & cat kemudahan awam', receipt_image_url: null, expense_date: `${now}-18`, created_by: 'adm-2', created_at: `${now}-18T16:00:00Z` },
+  { id: 'exp-5', amount: 150, category_id: 'cat-2', description: 'Sumbangan khairat kematian ahli', receipt_image_url: null, expense_date: `${now}-20`, created_by: 'adm-1', created_at: `${now}-20T19:00:00Z` }
 ]
 
 export const useExpensesStore = defineStore('expenses', () => {
@@ -32,9 +29,15 @@ export const useExpensesStore = defineStore('expenses', () => {
   const loading = ref(false)
 
   const allCategories = computed(() => categories.value.filter(c => c.is_active))
+  const yearlyTotal = computed(() => YEARLY_TOTAL)
+  const monthlyTotal = computed(() => MONTHLY_TOTAL)
 
   function categoryName(cat, locale = 'bm') {
     return locale === 'bm' ? cat.name_bm : cat.name_en
+  }
+
+  function yearlyAmount(cat) {
+    return (cat.yearly_pct / 100) * YEARLY_TOTAL
   }
 
   function forCategory(catId) {
@@ -51,6 +54,14 @@ export const useExpensesStore = defineStore('expenses', () => {
     return expenses.value
       .filter(e => !monthYear || e.expense_date.startsWith(monthYear))
       .reduce((sum, e) => sum + e.amount, 0)
+  }
+
+  function yearlyTotalSpent() {
+    return expenses.value.reduce((sum, e) => sum + e.amount, 0)
+  }
+
+  function yearlyTotalForCategory(catId) {
+    return forCategory(catId).reduce((sum, e) => sum + e.amount, 0)
   }
 
   function monthlyTotals(monthsCount = 6) {
@@ -96,7 +107,9 @@ export const useExpensesStore = defineStore('expenses', () => {
 
   return {
     expenses, categories, loading, allCategories,
-    categoryName, forCategory, totalForCategory, totalExpense, monthlyTotals,
+    yearlyTotal, monthlyTotal,
+    categoryName, yearlyAmount, forCategory, totalForCategory, totalExpense,
+    yearlyTotalSpent, yearlyTotalForCategory, monthlyTotals,
     addExpense, removeExpense
   }
 })
