@@ -1,8 +1,8 @@
 <template>
   <header class="app-header">
     <div class="left-section">
-      <button class="mobile-menu-btn" @click="$emit('toggle-sidebar')">
-        <span>☰</span>
+      <button class="menu-btn" @click="$emit('toggle-sidebar')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
       </button>
       <div class="header-title">
         <h1 v-if="pageTitle">{{ pageTitle }}</h1>
@@ -51,7 +51,7 @@ const pageTitle = computed(() => {
 })
 
 const userInitial = computed(() => {
-  if (!auth.user?.full_name) return auth.role?.[0]?.toUpperCase() || 'U'
+  if (!auth.user?.full_name) return auth.role?.[0]?.toUpperCase() || 'A'
   return auth.user.full_name.charAt(0).toUpperCase()
 })
 
@@ -65,51 +65,49 @@ const roleLabel = computed(() => {
 <style scoped>
 .app-header {
   height: var(--header-height);
-  background: rgba(17, 24, 39, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-5);
+  padding: 0 16px;
   position: sticky;
   top: 0;
   z-index: 40;
 }
-.left-section { display: flex; align-items: center; gap: var(--space-3); }
-.right-section { display: flex; align-items: center; gap: var(--space-4); }
+.left-section { display: flex; align-items: center; gap: 10px; }
+.right-section { display: flex; align-items: center; gap: 12px; }
 
-.mobile-menu-btn {
+.menu-btn {
   display: none;
-  font-size: 20px;
-  color: var(--color-text-secondary);
-  padding: var(--space-2);
+  width: 36px; height: 36px;
+  align-items: center; justify-content: center;
+  border-radius: var(--radius-full);
+  color: var(--color-text-primary);
 }
-@media (max-width: 767px) {
-  .mobile-menu-btn { display: inline-flex; }
+.menu-btn:hover { background: var(--color-bg-tertiary); }
+@media (max-width: 1023px) { .menu-btn { display: flex; } }
+@media (min-width: 1024px) { .menu-btn { display: none; } }
+
+.header-title h1 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: var(--font-bold);
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
 }
 
-.header-title h1 { font-size: var(--text-lg); font-weight: var(--font-semibold); color: var(--color-text-primary); }
-
-.user-badge {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
+.user-badge { display: flex; align-items: center; gap: 10px; }
 .user-avatar {
-  width: 36px;
-  height: 36px;
+  width: 32px; height: 32px;
   border-radius: var(--radius-full);
   background: var(--color-accent-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--text-sm);
-  font-weight: var(--font-bold);
-  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: var(--font-bold); color: #fff;
 }
 .user-info { display: flex; flex-direction: column; line-height: 1.2; }
-.user-name { font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--color-text-primary); }
-.user-role { font-size: var(--text-xs); color: var(--color-text-tertiary); }
+.user-name { font-size: 13px; font-weight: var(--font-medium); color: var(--color-text-primary); }
+.user-role { font-size: 11px; color: var(--color-text-secondary); }
 </style>

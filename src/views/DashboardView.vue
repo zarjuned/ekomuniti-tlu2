@@ -7,84 +7,74 @@
       </div>
     </div>
 
-    <!-- Notification banner -->
-    <div v-if="pendingCount > 0" class="notification-banner animate-flash">
-      <span>⚠️ {{ $t('dashboard.pendingApproval', { n: pendingCount }) }}</span>
+    <!-- Alert banner -->
+    <div v-if="pendingCount > 0" class="alert-banner">
+      ⚠️ {{ $t('dashboard.pendingApproval', { n: pendingCount }) }}
     </div>
 
-    <!-- Hero cards -->
-    <div class="hero-grid">
-      <div class="hero-card balance-card">
-        <span class="hero-label">{{ $t('dashboard.totalBalance') }}</span>
-        <span class="hero-value">RM {{ totalBalance.toLocaleString('ms-MY', { minimumFractionDigits: 2 }) }}</span>
+    <!-- Stat cards -->
+    <div class="stat-grid">
+      <div class="stat-card accent-blue card-3d">
+        <div class="stat-label">{{ $t('dashboard.totalBalance') }}</div>
+        <div class="stat-value">RM {{ totalBalance.toLocaleString('ms-MY', { minimumFractionDigits: 2 }) }}</div>
+        <div class="stat-sub"><span class="stat-dot" style="background:var(--color-success)"></span> Dana Terkumpul</div>
       </div>
-      <div class="hero-card arrears-card">
-        <span class="hero-label">{{ $t('dashboard.arrears') }}</span>
-        <span class="hero-value text-danger">RM {{ arrearsTotal.toLocaleString('ms-MY', { minimumFractionDigits: 2 }) }}</span>
-      </div>
-      <div class="hero-card budget-card">
-        <span class="hero-label">{{ $t('dashboard.monthlyBudget') }}</span>
-        <div class="budget-row">
-          <span class="text-success">+RM {{ monthIncome.toLocaleString() }}</span>
-          <span class="text-danger">-RM {{ monthExpense.toLocaleString() }}</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-bar-fill" :style="{ width: budgetPercent + '%' }"></div>
-        </div>
+      <div class="stat-card accent-orange card-3d">
+        <div class="stat-label">{{ $t('dashboard.arrears') }}</div>
+        <div class="stat-value text-danger">RM {{ arrearsTotal.toLocaleString('ms-MY', { minimumFractionDigits: 2 }) }}</div>
+        <div class="stat-sub"><span class="stat-dot" style="background:var(--color-warning)"></span> Belum Bayar</div>
       </div>
     </div>
 
-    <!-- Progress ring + charts row -->
-    <div class="charts-row">
-      <div class="glass-card progress-section">
-        <h3 class="section-title">{{ $t('dashboard.collectionProgress') }}</h3>
-        <div class="progress-ring-wrap">
-          <svg viewBox="0 0 200 200" class="progress-ring">
-            <circle cx="100" cy="100" r="85" stroke="var(--color-bg-tertiary)" stroke-width="14" fill="none" />
-            <circle cx="100" cy="100" r="85" stroke="ringColor" stroke-width="14" fill="none"
-                    :stroke-dasharray="dashArray" :stroke-dashoffset="dashOffset"
-                    stroke-linecap="round" transform="rotate(-90 100 100)"
-                    :style="{ stroke: ringColor, transition: 'stroke-dashoffset 0.8s ease-out' }" />
-            <text x="100" y="95" text-anchor="middle" fill="var(--color-text-primary)" font-size="22" font-weight="700">{{ paidCount }} / {{ totalHouses }}</text>
-            <text x="100" y="120" text-anchor="middle" fill="var(--color-text-secondary)" font-size="13">{{ $t('dashboard.paid') }} ({{ percentPaid }}%)</text>
-          </svg>
-        </div>
+    <!-- Progress ring -->
+    <div class="glass-card ring-card">
+      <div class="section-label">{{ $t('dashboard.collectionProgress') }}</div>
+      <div class="ring-wrap">
+        <svg viewBox="0 0 200 200" class="ring-svg">
+          <circle cx="100" cy="100" r="85" stroke="var(--color-bg-tertiary)" stroke-width="14" fill="none"/>
+          <circle cx="100" cy="100" r="85" stroke="ringColor" stroke-width="14" fill="none"
+                  :stroke-dasharray="dashArray" :stroke-dashoffset="dashOffset"
+                  stroke-linecap="round" transform="rotate(-90 100 100)"
+                  :style="{ stroke: ringColor, transition: 'stroke-dashoffset 0.8s ease-out' }"/>
+          <text x="100" y="95" text-anchor="middle" fill="var(--color-text-primary)" font-size="22" font-weight="700" font-family="var(--font-display)">{{ paidCount }} / {{ totalHouses }}</text>
+          <text x="100" y="120" text-anchor="middle" fill="var(--color-text-secondary)" font-size="13">{{ $t('dashboard.paid') }} ({{ percentPaid }}%)</text>
+        </svg>
       </div>
+    </div>
 
-      <div class="glass-card cashflow-section">
-        <h3 class="section-title">{{ $t('dashboard.cashflow') }}</h3>
-        <div class="cashflow-chart">
-          <Bar :data="cashflowData" :options="chartOptions" />
-        </div>
+    <!-- Cashflow chart -->
+    <div class="glass-card">
+      <div class="section-label">{{ $t('dashboard.cashflow') }}</div>
+      <div class="chart-wrap">
+        <Bar :data="cashflowData" :options="chartOptions" />
       </div>
+    </div>
 
-      <div class="glass-card defaulter-section">
-        <div class="section-title-row">
-          <h3 class="section-title">{{ $t('dashboard.defaulters') }}</h3>
-          <button class="btn btn-secondary btn-sm" @click="copyReminder">
-            {{ copied ? '✓ Copied' : $t('dashboard.copyWhatsApp') }}
-          </button>
+    <!-- Defaulters -->
+    <div class="glass-card">
+      <div class="section-label">{{ $t('dashboard.defaulters') }}</div>
+      <div class="defaulter-list">
+        <div v-for="h in defaulters" :key="h.id" class="defaulter-item">
+          <span class="defaulter-dot" style="background:var(--color-danger)"></span>
+          <span class="defaulter-house">{{ h.house_number }}</span>
+          <span class="defaulter-name">{{ h.owner_name }}</span>
         </div>
-        <div class="defaulter-list">
-          <div v-for="h in defaulters" :key="h.id" class="defaulter-item">
-            <StatusDot status="unpaid" showLabel />
-            <span class="defaulter-house">{{ h.house_number }}</span>
-            <span class="defaulter-name">{{ h.owner_name }}</span>
-          </div>
-          <EmptyState v-if="defaulters.length === 0" :title="$t('common.noData')" />
-        </div>
+        <EmptyState v-if="defaulters.length === 0" :title="$t('common.noData')" />
       </div>
     </div>
 
     <!-- Quick actions -->
     <div class="quick-actions">
-      <button class="btn btn-primary" @click="$router.push({ name: 'payments' })">
+      <button class="quick-btn" @click="$router.push({ name: 'payments' })">
+        <div class="quick-icon" style="background:rgba(0,122,255,0.12);color:var(--color-accent-primary)">+</div>
         {{ $t('dashboard.recordPayment') }}
       </button>
-      <button class="btn btn-secondary" @click="$router.push({ name: 'expenses' })">
+      <button class="quick-btn" @click="$router.push({ name: 'expenses' })">
+        <div class="quick-icon" style="background:rgba(255,149,0,0.12);color:var(--color-warning)">+</div>
         {{ $t('dashboard.addExpense') }}
       </button>
-      <button class="btn btn-secondary" @click="$router.push({ name: 'attendance' })">
+      <button class="quick-btn" @click="$router.push({ name: 'attendance' })">
+        <div class="quick-icon" style="background:rgba(175,82,222,0.12);color:#AF52DE">📋</div>
         {{ $t('dashboard.postAnnouncement') }}
       </button>
     </div>
@@ -103,7 +93,6 @@ import { useWhatsApp } from '@/composables/useWhatsApp'
 import { getCurrentMonthYear, getMonthsAgo, formatMonthYear } from '@/lib/utils'
 import { TOTAL_HOUSES } from '@/lib/constants'
 import { useI18n } from 'vue-i18n'
-import StatusDot from '@/components/common/StatusDot.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
@@ -127,7 +116,6 @@ const totalExpenseAll = computed(() => expenses.totalExpense())
 const totalBalance = computed(() => totalIncomeAll.value - totalExpenseAll.value)
 
 const arrearsTotal = computed(() => {
-  // Houses unpaid for current month = total houses - (paid + pending)
   const counts = payments.countsForMonth(currentMonth)
   return counts.unpaid * 20
 })
@@ -135,12 +123,6 @@ const arrearsTotal = computed(() => {
 const paidCount = computed(() => payments.countsForMonth(currentMonth).paid)
 const percentPaid = computed(() => Math.round((paidCount.value / totalHouses) * 100))
 
-const budgetPercent = computed(() => {
-  if (monthIncome.value === 0) return 0
-  return Math.min(100, Math.round((monthExpense.value / monthIncome.value) * 100))
-})
-
-// Progress ring
 const radius = 85
 const dashArray = 2 * Math.PI * radius
 const dashOffset = computed(() => dashArray - (dashArray * percentPaid.value) / 100)
@@ -150,18 +132,14 @@ const ringColor = computed(() => {
   return 'var(--color-success)'
 })
 
-// Defaulters
 const defaulters = computed(() => {
   const currentPay = payments.forMonth(currentMonth)
   const paidHouseIds = new Set(currentPay.filter(p => p.status === 'approved' || p.status === 'pending').map(p => p.house_id))
   return houses.houses.filter(h => !paidHouseIds.has(h.id))
 })
 
-// Cashflow chart
 const cashflowData = computed(() => {
-  const months = []
-  const incomes = []
-  const exps = []
+  const months = []; const incomes = []; const exps = []
   for (let i = 5; i >= 0; i--) {
     const my = getMonthsAgo(i)
     months.push(formatMonthYear(my, locale.value))
@@ -171,8 +149,8 @@ const cashflowData = computed(() => {
   return {
     labels: months,
     datasets: [
-      { label: 'Income', data: incomes, backgroundColor: 'rgba(34, 197, 94, 0.8)', borderRadius: 6 },
-      { label: 'Expense', data: exps, backgroundColor: 'rgba(239, 68, 68, 0.8)', borderRadius: 6 }
+      { label: 'Income', data: incomes, backgroundColor: 'rgba(52,199,89,0.7)', borderRadius: 6 },
+      { label: 'Expense', data: exps, backgroundColor: 'rgba(255,59,48,0.7)', borderRadius: 6 }
     ]
   }
 })
@@ -180,139 +158,76 @@ const cashflowData = computed(() => {
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
-  plugins: { legend: { display: false }, tooltip: { enabled: true } },
+  plugins: { legend: { display: false } },
   scales: {
-    x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', font: { size: 10 } } },
-    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', font: { size: 10 } } }
+    x: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#8e8e93', font: { size: 10 } } },
+    y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#8e8e93', font: { size: 10 } } }
   }
 }
 
 const { generateReminder, copyToClipboard, copied } = useWhatsApp()
-
-async function copyReminder() {
-  const msg = generateReminder(defaulters.value, currentMonth)
-  await copyToClipboard(msg)
-}
 </script>
 
 <style scoped>
-.notification-banner {
-  background: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+.alert-banner {
+  background: rgba(255,149,0,0.1);
+  border: 1px solid rgba(255,149,0,0.25);
   color: var(--color-warning);
-  padding: var(--space-3) var(--space-5);
+  padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
-  margin-bottom: var(--space-5);
 }
 
-.hero-grid {
+.stat-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-4);
-  margin-bottom: var(--space-5);
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
 }
-@media (max-width: 1023px) { .hero-grid { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .stat-grid { grid-template-columns: 1fr 1fr; } }
 
-.hero-card {
-  background: rgba(17, 24, 39, 0.6);
-  backdrop-filter: blur(16px);
+.stat-card {
+  background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  border-radius: var(--radius-2xl);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
 }
-.balance-card {
-  background: var(--color-accent-gradient);
-  border: none;
-  box-shadow: var(--shadow-glow);
-}
-.balance-card .hero-label, .balance-card .hero-value { color: #fff; }
-.hero-label {
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.hero-value {
-  font-size: var(--text-3xl);
-  font-weight: var(--font-bold);
-  color: var(--color-text-primary);
-}
-.budget-row {
-  display: flex;
-  gap: var(--space-4);
-  font-size: var(--text-lg);
-  font-weight: var(--font-semibold);
-}
+.stat-card.accent-blue { background: linear-gradient(135deg, rgba(0,122,255,0.05), rgba(90,200,250,0.03)); border-color: rgba(0,122,255,0.12); }
+.stat-card.accent-orange { background: linear-gradient(135deg, rgba(255,149,0,0.05), rgba(255,149,0,0.02)); border-color: rgba(255,149,0,0.12); }
 
-.charts-row {
-  display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
-  gap: var(--space-4);
-  margin-bottom: var(--space-5);
-}
-@media (max-width: 1023px) { .charts-row { grid-template-columns: 1fr; } }
+.stat-label { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-secondary); margin-bottom: 4px; }
+.stat-value { font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: var(--color-text-primary); }
+.stat-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 6px; display: flex; align-items: center; gap: 6px; }
+.stat-dot { width: 6px; height: 6px; border-radius: 50%; }
 
-.section-title {
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: var(--space-4);
-}
-.section-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-4);
-}
-.section-title-row h3 { margin-bottom: 0; }
+.section-label { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-secondary); margin-bottom: var(--space-3); }
 
-.progress-section {
-  display: flex;
-  flex-direction: column;
-}
-.progress-ring-wrap {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 220px;
-}
-.progress-ring { width: 200px; height: 200px; }
+.ring-card { padding: var(--space-5); display: flex; flex-direction: column; }
+.ring-wrap { display: flex; justify-content: center; }
+.ring-svg { width: 200px; height: 200px; }
 
-.cashflow-section { min-height: 320px; }
-.cashflow-chart {
-  height: 260px;
-  position: relative;
-}
+.chart-wrap { height: 220px; }
 
-.defaulter-list {
-  max-height: 280px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-.defaulter-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) 0;
-  border-bottom: 1px solid var(--color-border);
-  font-size: var(--text-sm);
-}
-.defaulter-house { font-weight: var(--font-semibold); color: var(--color-text-primary); min-width: 60px; }
+.defaulter-list { display: flex; flex-direction: column; gap: 4px; max-height: 280px; overflow-y: auto; }
+.defaulter-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-md); font-size: var(--text-sm); border-bottom: 1px solid rgba(60,60,67,0.06); }
+.defaulter-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.defaulter-house { font-weight: 600; min-width: 55px; }
 .defaulter-name { color: var(--color-text-secondary); font-size: var(--text-xs); }
 
-.quick-actions {
-  display: flex;
-  gap: var(--space-3);
-  flex-wrap: wrap;
+.quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; }
+@media (max-width: 480px) { .quick-actions { grid-template-columns: 1fr 1fr; } }
+.quick-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 16px 12px; border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  font-size: 12px; font-weight: 600; color: var(--color-text-primary);
+  transition: all 0.2s; cursor: pointer;
 }
+.quick-btn:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.quick-btn:active { transform: scale(0.96); }
+.quick-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; }
+
+.text-danger { color: var(--color-danger); }
 </style>

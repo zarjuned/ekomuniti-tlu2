@@ -1,112 +1,128 @@
 <template>
   <div class="page animate-fade-in">
     <div class="page-header">
-      <h1 class="page-title">{{ $t('expenses.title') }}</h1>
+      <div>
+        <div class="section-label">{{ $t('expenses.longTermPlan') }}</div>
+        <h1 class="page-title">Jangka Panjang 2026</h1>
+      </div>
       <button class="btn btn-primary" @click="openAdd">{{ $t('expenses.addExpense') }}</button>
     </div>
 
-    <!-- Pelan Perbelanjaan Jangka Panjang -->
-    <section class="expenses-section">
-      <h2 class="section-heading">{{ $t('expenses.longTermPlan') }}</h2>
-      <div class="plan-info glass-card">
-        <p>{{ $t('expenses.planBasedOn', { fee: 20, houses: 40, monthly: 800, yearly: 9600 }) }}</p>
+    <!-- Plan info -->
+    <div class="glass-card plan-info">
+      <p>{{ $t('expenses.planBasedOn', { fee: 20, houses: 40, monthly: 800, yearly: 9600 }) }}</p>
+    </div>
+
+    <!-- Donut chart + legend -->
+    <div class="glass-card donut-card">
+      <div class="donut-wrap">
+        <svg viewBox="0 0 200 200" class="donut-svg">
+          <circle cx="100" cy="100" r="80" fill="none" stroke="var(--color-bg-tertiary)" stroke-width="20"/>
+          <template v-for="(seg, i) in donutSegments" :key="i">
+            <circle
+              cx="100" cy="100" r="80" fill="none"
+              :stroke="seg.color"
+              stroke-width="20"
+              :stroke-dasharray="seg.dash + ' ' + (502.65 - seg.dash)"
+              :stroke-dashoffset="-seg.offset"
+              stroke-linecap="butt"
+              transform="rotate(-90 100 100)"
+            />
+          </template>
+          <circle cx="100" cy="100" r="70" fill="#fff"/>
+        </svg>
+        <div class="donut-center">
+          <div class="donut-total">RM 9,600</div>
+          <div class="donut-label">{{ $t('expenses.perYear') }}</div>
+        </div>
       </div>
-      <div class="plan-grid">
-        <div v-for="cat in activeCategories" :key="cat.id" class="plan-card glass-card">
-          <div class="plan-card-header">
-            <span class="plan-pct">{{ cat.yearly_pct }}%</span>
-            <span class="plan-yearly">RM {{ store.yearlyAmount(cat).toLocaleString() }} / {{ $t('expenses.perYear') }}</span>
+
+      <div class="plan-legend">
+        <div v-for="cat in activeCategories" :key="cat.id" class="legend-item">
+          <div class="legend-dot" :style="{ background: cat.color }"></div>
+          <div class="legend-info">
+            <div class="legend-name">{{ catName(cat) }}</div>
+            <div class="legend-desc">{{ cat.desc || catDesc(cat) }}</div>
           </div>
-          <div class="plan-card-title">{{ catName(cat) }}</div>
-          <div class="plan-card-desc">{{ catDesc(cat) }}</div>
-          <div class="plan-card-spent">
-            <span class="text-xs text-secondary">{{ $t('expenses.spentThisYear') }}:</span>
-            <span class="text-sm font-semibold">RM {{ store.yearlyTotalForCategory(cat.id).toLocaleString() }}</span>
-          </div>
-          <div class="progress-bar mt-2">
-            <div
-              class="progress-bar-fill"
-              :class="planProgressVariant(cat)"
-              :style="{ width: planProgressWidth(cat) + '%' }"
-            ></div>
+          <div class="legend-right">
+            <div class="legend-pct">{{ cat.yearly_pct }}%</div>
+            <div class="legend-amt">RM {{ cat.yearly_amount.toLocaleString() }}</div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- Category budget tracker (monthly) -->
-    <section class="expenses-section">
-      <h2 class="section-heading">{{ $t('expenses.categoryTracker') }}</h2>
-      <div class="budget-grid">
-        <div v-for="cat in activeCategories" :key="cat.id" class="budget-card glass-card">
-          <div class="budget-card-title">{{ catName(cat) }}</div>
-          <div class="budget-card-stats">
-            <span class="budget-spent">RM {{ spentForCategory(cat.id).toLocaleString() }}</span>
-            <span class="budget-limit">/ RM {{ cat.monthly_budget }}</span>
-          </div>
-          <div class="progress-bar">
-            <div
-              class="progress-bar-fill"
-              :class="progressVariant(cat.id, cat.monthly_budget)"
-              :style="{ width: progressWidth(cat.id, cat.monthly_budget) + '%' }"
-            ></div>
-          </div>
-          <p v-if="spentForCategory(cat.id) > cat.monthly_budget && cat.monthly_budget > 0" class="text-danger text-xs mt-2">
-            ⚠ {{ $t('expenses.overBudget') }}
-          </p>
+    <!-- Prinsip -->
+    <div class="section-header">
+      <div class="section-label">{{ $t('expenses.principles') }}</div>
+    </div>
+    <div class="glass-card principles-list">
+      <ul>
+        <li v-for="(p, i) in principleItems" :key="i">
+          <span class="principle-num">{{ i + 1 }}</span>
+          <span>{{ p }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Monthly budget tracker -->
+    <div class="section-header">
+      <div class="section-label">{{ $t('expenses.categoryTracker') }}</div>
+    </div>
+    <div class="budget-grid">
+      <div v-for="cat in activeCategories" :key="cat.id" class="budget-tile glass-card">
+        <div class="budget-tile-icon">{{ cat.icon }}</div>
+        <div class="budget-tile-name">{{ catName(cat) }}</div>
+        <div class="budget-tile-stats">
+          <span class="budget-spent">RM {{ spentForCategory(cat.id).toLocaleString() }}</span>
+          <span class="budget-limit">/ RM {{ cat.monthly_budget }}</span>
         </div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" :class="progressVariant(cat.id, cat.monthly_budget)" :style="{ width: progressWidth(cat.id, cat.monthly_budget) + '%' }"></div>
+        </div>
+        <p v-if="spentForCategory(cat.id) > cat.monthly_budget && cat.monthly_budget > 0" class="text-danger text-xs mt-2">⚠ {{ $t('expenses.overBudget') }}</p>
       </div>
-    </section>
-
-    <!-- Prinsip Pengurusan Kewangan -->
-    <section class="expenses-section">
-      <h2 class="section-heading">{{ $t('expenses.principles') }}</h2>
-      <div class="principles-list glass-card">
-        <ul>
-          <li v-for="(p, i) in principleItems" :key="i">{{ p }}</li>
-        </ul>
-      </div>
-    </section>
+    </div>
 
     <!-- Expense ledger -->
-    <section class="expenses-section">
-      <h2 class="section-heading">{{ $t('expenses.ledger') }}</h2>
-      <div class="filter-row">
-        <select v-model="categoryFilter" class="form-select" style="max-width: 240px;">
-          <option value="all">{{ $t('expenses.allCategories') }}</option>
-          <option v-for="c in activeCategories" :key="c.id" :value="c.id">{{ catName(c) }}</option>
-        </select>
-      </div>
-      <div class="ledger-wrap glass-card">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>{{ $t('expenses.date') }}</th>
-              <th>{{ $t('expenses.amount') }}</th>
-              <th>{{ $t('expenses.description') }}</th>
-              <th>{{ $t('expenses.category') }}</th>
-              <th>{{ $t('payments.actions') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="e in filteredExpenses" :key="e.id">
-              <td class="cell-date">{{ e.expense_date }}</td>
-              <td class="cell-amount">RM {{ e.amount.toFixed(2) }}</td>
-              <td class="cell-desc">{{ e.description }}</td>
-              <td><BaseBadge>{{ catNameById(e.category_id) }}</BaseBadge></td>
-              <td>
-                <button class="btn btn-ghost btn-sm text-danger" @click="remove(e)">{{ $t('expenses.delete') }}</button>
-              </td>
-            </tr>
-            <tr v-if="filteredExpenses.length === 0">
-              <td colspan="5" style="text-align:center; padding:var(--space-8);">
-                <p class="text-secondary">{{ $t('common.noData') }}</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <div class="section-header">
+      <div class="section-label">{{ $t('expenses.ledger') }}</div>
+    </div>
+    <div class="filter-row">
+      <select v-model="categoryFilter" class="form-select" style="max-width:240px">
+        <option value="all">{{ $t('expenses.allCategories') }}</option>
+        <option v-for="c in activeCategories" :key="c.id" :value="c.id">{{ catName(c) }}</option>
+      </select>
+    </div>
+    <div class="ledger-wrap glass-card">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>{{ $t('expenses.date') }}</th>
+            <th>{{ $t('expenses.amount') }}</th>
+            <th>{{ $t('expenses.description') }}</th>
+            <th>{{ $t('expenses.category') }}</th>
+            <th>{{ $t('payments.actions') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="e in filteredExpenses" :key="e.id">
+            <td class="cell-date">{{ e.expense_date }}</td>
+            <td class="cell-amount">RM {{ e.amount.toFixed(2) }}</td>
+            <td class="cell-desc">{{ e.description }}</td>
+            <td><span class="badge" :style="{ color: catColor(e.category_id), background: catColor(e.category_id) + '18' }">{{ catNameById(e.category_id) }}</span></td>
+            <td>
+              <button class="btn btn-ghost btn-sm text-danger" @click="remove(e)">{{ $t('expenses.delete') }}</button>
+            </td>
+          </tr>
+          <tr v-if="filteredExpenses.length === 0">
+            <td colspan="5" style="text-align:center;padding:var(--space-8)">
+              <p class="text-secondary">{{ $t('common.noData') }}</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <!-- Add expense modal -->
     <BaseModal v-model="showAdd" :title="$t('expenses.addExpense')">
@@ -129,7 +145,7 @@
           <label class="form-label">{{ $t('expenses.date') }}</label>
           <input v-model="form.date" type="date" class="form-input" required />
         </div>
-        <div style="display:flex; gap:var(--space-2); justify-content:flex-end;">
+        <div style="display:flex;gap:var(--space-2);justify-content:flex-end">
           <button type="button" class="btn btn-ghost" @click="showAdd = false">{{ $t('common.cancel') }}</button>
           <button type="submit" class="btn btn-primary">{{ $t('expenses.save') }}</button>
         </div>
@@ -144,7 +160,6 @@ import { useExpensesStore } from '@/stores/expenses'
 import { getCurrentMonthYear } from '@/lib/utils'
 import { useToast } from '@/composables/useToast'
 import { useI18n } from 'vue-i18n'
-import BaseBadge from '@/components/common/BaseBadge.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 
 const { locale, t } = useI18n()
@@ -152,29 +167,69 @@ const store = useExpensesStore()
 const toast = useToast()
 
 const categoryFilter = ref('all')
-const activeCategories = computed(() => store.allCategories)
 
-function catName(cat) { return locale.value === 'bm' ? cat.name_bm : cat.name_en }
-
-function catDesc(cat) {
-  const descs = {
-    'cat-1': locale.value === 'bm' ? 'Bantuan banjir, kebakaran, kematian & keluarga memerlukan' : 'Flood, fire, death aid & families in need',
-    'cat-2': locale.value === 'bm' ? 'Sumbangan kematian, ziarah & bantuan segera' : 'Death contributions, visits & immediate aid',
-    'cat-3': locale.value === 'bm' ? 'Hari Kebangsaan, gotong-royong, Hari Keluarga, program kanak-kanak & warga emas' : 'National Day, gotong-royong, Family Day, children & senior programmes',
-    'cat-4': locale.value === 'bm' ? 'Baiki taman permainan, papan tanda, cat kemudahan awam, keceriaan kawasan' : 'Playground repair, signage, public facility painting, beautification',
-    'cat-5': locale.value === 'bm' ? 'Percetakan, alat tulis, jamuan mesyuarat, bayaran akaun bank' : 'Printing, stationery, meeting refreshments, bank account fees',
-    'cat-6': locale.value === 'bm' ? 'Simpanan projek besar & dana kecemasan luar jangka' : 'Major project savings & contingency emergency fund'
-  }
-  return descs[cat.id] || ''
+const CATEGORY_COLORS = {
+  'cat-1': '#007AFF',
+  'cat-2': '#34C759',
+  'cat-3': '#FF9500',
+  'cat-4': '#AF52DE',
+  'cat-5': '#FF2D55',
+  'cat-6': '#5AC8FA'
 }
 
+const CATEGORY_ICONS = {
+  'cat-1': '🤲', 'cat-2': '🕊️', 'cat-3': '🎉',
+  'cat-4': '🔧', 'cat-5': '📋', 'cat-6': '🏦'
+}
+
+const CATEGORY_DESCS_BM = {
+  'cat-1': 'Bantuan banjir, kebakaran, kematian & keluarga memerlukan',
+  'cat-2': 'Sumbangan kematian, ziarah & bantuan segera',
+  'cat-3': 'Hari Kebangsaan, gotong-royong, Hari Keluarga',
+  'cat-4': 'Baiki taman permainan, papan tanda, cat kemudahan awam',
+  'cat-5': 'Percetakan, alat tulis, jamuan mesyuarat, bayaran bank',
+  'cat-6': 'Simpanan projek besar & dana kecemasan luar jangka'
+}
+
+const CATEGORY_DESCS_EN = {
+  'cat-1': 'Flood, fire, death aid & families in need',
+  'cat-2': 'Death contributions, visits & immediate aid',
+  'cat-3': 'National Day, gotong-royong, Family Day events',
+  'cat-4': 'Playground repair, signage, painting, beautification',
+  'cat-5': 'Printing, stationery, meeting catering, bank fees',
+  'cat-6': 'Major project savings & contingency emergency fund'
+}
+
+const activeCategories = computed(() =>
+  store.allCategories.map(c => ({
+    ...c,
+    yearly_amount: store.yearlyAmount(c),
+    color: CATEGORY_COLORS[c.id] || '#007AFF',
+    icon: CATEGORY_ICONS[c.id] || '📌',
+    desc: locale.value === 'bm' ? CATEGORY_DESCS_BM[c.id] : CATEGORY_DESCS_EN[c.id]
+  }))
+)
+
+const donutSegments = computed(() => {
+  const circum = 2 * Math.PI * 80
+  let offset = 0
+  return activeCategories.value.map(c => {
+    const pct = c.yearly_pct / 100
+    const dash = circum * pct
+    const segOffset = circum * (offset / 100)
+    offset += c.yearly_pct
+    return { color: c.color, dash, offset: segOffset }
+  })
+})
+
+function catName(cat) { return locale.value === 'bm' ? cat.name_bm : cat.name_en }
+function catDesc(cat) { return cat.desc || '' }
+function catColor(id) { return CATEGORY_COLORS[id] || '#007AFF' }
 function catNameById(id) {
   const c = activeCategories.value.find(x => x.id === id)
   return c ? catName(c) : '—'
 }
-function spentForCategory(catId) {
-  return store.totalForCategory(catId, getCurrentMonthYear())
-}
+function spentForCategory(catId) { return store.totalForCategory(catId, getCurrentMonthYear()) }
 function progressWidth(catId, budget) {
   if (!budget || budget <= 0) return 0
   return Math.min(100, (spentForCategory(catId) / budget) * 100)
@@ -187,26 +242,9 @@ function progressVariant(catId, budget) {
   return 'success'
 }
 
-function planProgressWidth(cat) {
-  const yb = store.yearlyAmount(cat)
-  if (!yb || yb <= 0) return 0
-  return Math.min(100, (store.yearlyTotalForCategory(cat.id) / yb) * 100)
-}
-function planProgressVariant(cat) {
-  const yb = store.yearlyAmount(cat)
-  if (!yb || yb <= 0) return ''
-  const pct = (store.yearlyTotalForCategory(cat.id) / yb) * 100
-  if (pct > 100) return 'danger'
-  if (pct > 75) return 'warning'
-  return 'success'
-}
-
 const principleItems = computed(() => [
-  t('expenses.principle1'),
-  t('expenses.principle2'),
-  t('expenses.principle3'),
-  t('expenses.principle4'),
-  t('expenses.principle5')
+  t('expenses.principle1'), t('expenses.principle2'),
+  t('expenses.principle3'), t('expenses.principle4'), t('expenses.principle5')
 ])
 
 const filteredExpenses = computed(() => {
@@ -216,9 +254,9 @@ const filteredExpenses = computed(() => {
 })
 
 async function remove(exp) {
-  if (!confirm('Adakah anda pasti ingin menghapuskan rekod ini?')) return
+  if (!confirm(t('expenses.confirmDelete') || 'Hapus rekod ini?')) return
   await store.removeExpense(exp.id)
-  toast.success('Rekod dihapuskan')
+  toast.success(locale.value === 'bm' ? 'Rekod dihapuskan' : 'Deleted')
 }
 
 const showAdd = ref(false)
@@ -241,191 +279,68 @@ async function submitAdd() {
     description: form.value.description,
     expense_date: form.value.date
   })
-  toast.success('Perbelanjaan ditambah')
+  toast.success(locale.value === 'bm' ? 'Perbelanjaan ditambah' : 'Expense added')
   showAdd.value = false
 }
 </script>
 
 <style scoped>
-/* ===== Section spacing ===== */
-.expenses-section {
-  margin-bottom: var(--space-8);
-}
-.section-heading {
-  font-size: var(--text-lg);
-  margin: 0 0 var(--space-4);
-}
+.section-label { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-secondary); margin-bottom: 2px; }
+.section-header { margin-top: var(--space-4); }
 
-/* ===== Pelan Perbelanjaan Jangka Panjang ===== */
-.plan-info {
-  padding: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-4);
-}
-.plan-info p {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-}
+.plan-info { padding: var(--space-3) var(--space-4); margin-bottom: var(--space-1); }
+.plan-info p { font-size: var(--text-sm); color: var(--color-text-secondary); line-height: 1.5; }
 
-.plan-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--space-4);
-}
-.plan-card {
-  padding: var(--space-4);
-}
-.plan-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
-}
-.plan-pct {
-  font-size: var(--text-2xl);
-  font-weight: var(--font-bold);
-  color: var(--color-accent);
-  flex-shrink: 0;
-}
-.plan-yearly {
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-primary);
-  text-align: right;
-  white-space: nowrap;
-}
-.plan-card-title {
-  font-size: var(--text-base);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-1);
-}
-.plan-card-desc {
-  font-size: var(--text-xs);
-  color: var(--color-text-tertiary);
-  margin-bottom: var(--space-3);
-  line-height: 1.5;
-}
-.plan-card-spent {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-}
+/* Donut */
+.donut-card { padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.donut-wrap { position: relative; width: 240px; height: 240px; perspective: 800px; }
+.donut-svg { width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.22,1,0.36,1); }
+.donut-wrap:hover .donut-svg { transform: rotateX(6deg) rotateY(-4deg); }
+.donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.donut-total { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--color-text-primary); }
+.donut-label { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
 
-/* ===== Budget tracker ===== */
-.budget-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: var(--space-4);
-}
-.budget-card-title {
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--space-2);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.budget-card-stats {
-  display: flex;
-  gap: var(--space-2);
-  align-items: baseline;
-  margin-bottom: var(--space-3);
-}
-.budget-spent {
-  font-size: var(--text-xl);
-  font-weight: var(--font-bold);
-  color: var(--color-text-primary);
-}
-.budget-limit {
-  font-size: var(--text-sm);
-  color: var(--color-text-tertiary);
-}
+/* Legend */
+.plan-legend { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 400px; }
+.legend-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-md); background: var(--color-bg-primary); border: 1px solid rgba(60,60,67,0.06); transition: all 0.2s; }
+.legend-item:hover { transform: translateX(4px); box-shadow: var(--shadow-sm); }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.legend-info { flex: 1; min-width: 0; }
+.legend-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.legend-desc { font-size: 10px; color: var(--color-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+.legend-right { text-align: right; flex-shrink: 0; }
+.legend-pct { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+.legend-amt { font-size: 10px; color: var(--color-text-secondary); }
 
-/* ===== Prinsip ===== */
-.principles-list {
-  padding: var(--space-4);
-}
-.principles-list ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-.principles-list li {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  padding-left: var(--space-5);
-  position: relative;
-  line-height: 1.5;
-}
-.principles-list li::before {
-  content: '✓';
-  position: absolute;
-  left: 0;
-  color: var(--color-success);
-  font-weight: var(--font-bold);
-}
+/* Principles */
+.principles-list { padding: var(--space-4); }
+.principles-list ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2px; }
+.principles-list li { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-radius: var(--radius-md); font-size: var(--text-sm); color: var(--color-text-primary); line-height: 1.5; transition: background 0.15s; }
+.principles-list li:not(:last-child) { border-bottom: 1px solid rgba(60,60,67,0.06); }
+.principles-list li:hover { background: rgba(0,0,0,0.02); }
+.principle-num { width: 22px; height: 22px; border-radius: 50%; background: var(--color-success); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
 
-/* ===== Ledger ===== */
-.filter-row {
-  margin-bottom: var(--space-4);
-}
-.ledger-wrap {
-  overflow-x: auto;
-}
-.cell-amount {
-  font-weight: var(--font-semibold);
-  color: var(--color-text-primary);
-  white-space: nowrap;
-}
-.cell-date {
-  white-space: nowrap;
-  font-size: var(--text-xs);
-}
-.cell-desc {
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+/* Budget tiles */
+.budget-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+@media (max-width: 480px) { .budget-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 360px) { .budget-grid { grid-template-columns: 1fr; } }
+.budget-tile { padding: 14px 16px; }
+.budget-tile-icon { font-size: 20px; margin-bottom: 4px; }
+.budget-tile-name { font-size: 12px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.budget-tile-stats { display: flex; align-items: baseline; gap: 4px; margin-bottom: 8px; }
+.budget-spent { font-family: var(--font-display); font-size: 17px; font-weight: 700; }
+.budget-limit { font-size: 12px; color: var(--color-text-tertiary); }
 
-/* ===== Responsive ===== */
-@media (max-width: 767px) {
-  .plan-grid {
-    grid-template-columns: 1fr;
-  }
-  .plan-card-header {
-    flex-wrap: wrap;
-  }
-  .plan-yearly {
-    white-space: normal;
-    text-align: left;
-  }
-
-  .budget-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .cell-desc {
-    max-width: 120px;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1023px) {
-  .plan-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .budget-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
+/* Ledger */
+.filter-row { margin-bottom: var(--space-3); }
+.ledger-wrap { overflow-x: auto; }
+.cell-amount { font-family: var(--font-display); font-weight: 600; white-space: nowrap; }
+.cell-date { font-size: var(--text-xs); color: var(--color-text-secondary); white-space: nowrap; }
+.cell-desc { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 480px) { .cell-desc { max-width: 100px; } }
+.badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: var(--radius-full); font-size: 11px; font-weight: 600; white-space: nowrap; }
+.text-xs { font-size: var(--text-xs); }
+.text-danger { color: var(--color-danger); }
+.text-secondary { color: var(--color-text-secondary); }
 .mt-2 { margin-top: var(--space-2); }
 </style>

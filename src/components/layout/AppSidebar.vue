@@ -1,9 +1,16 @@
 <template>
-  <aside class="sidebar" :class="{ collapsed: !expanded }">
+  <!-- Mobile overlay -->
+  <div class="sidebar-overlay" :class="{ show: mobileOpen }" @click="$emit('close-mobile')"></div>
+
+  <aside class="sidebar" :class="{ open: mobileOpen }">
     <div class="sidebar-brand">
-      <div class="brand-logo">TLU2</div>
-      <span v-if="expanded" class="brand-text">E-Komuniti</span>
+      <div class="brand-icon">T</div>
+      <div>
+        <div class="brand-name">E-Komuniti</div>
+        <div class="brand-sub">Taman Langat Utama 2</div>
+      </div>
     </div>
+    <div class="sidebar-label">Navigasi</div>
     <nav class="sidebar-nav">
       <router-link
         v-for="item in navItems"
@@ -11,34 +18,38 @@
         :to="{ name: item.name }"
         class="nav-item"
         :class="{ active: isActive(item.name) }"
+        @click="$emit('close-mobile')"
       >
-        <component :is="item.icon" :size="20"></component>
-        <span v-if="expanded" class="nav-label">{{ item.label }}</span>
+        <component :is="item.icon" :size="20" stroke-width="1.8"></component>
+        <span class="nav-label">{{ item.label }}</span>
       </router-link>
     </nav>
     <div class="sidebar-footer">
-      <button class="nav-item logout-btn" @click="handleLogout">
-        <LogOut :size="20"></LogOut>
-        <span v-if="expanded" class="nav-label">{{ $t('nav.logout') }}</span>
-      </button>
+      <div class="footer-avatar">{{ userInitial }}</div>
+      <div>
+        <div class="footer-name">{{ auth.user?.full_name || auth.role || 'Admin' }}</div>
+        <div class="footer-role">{{ roleLabel }}</div>
+      </div>
     </div>
   </aside>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
+import { ROLE_LABELS } from '@/lib/constants'
 import {
   LayoutDashboard, Home, CreditCard, Receipt, Building2,
-  FileText, UserCheck, Settings, LogOut
+  FileText, UserCheck, Settings
 } from 'lucide-vue-next'
 
-defineProps({ expanded: { type: Boolean, default: true } })
-const { t } = useI18n()
+defineProps({ mobileOpen: { type: Boolean, default: false } })
+defineEmits(['close-mobile'])
+
+const { t, locale } = useI18n()
 const route = useRoute()
-const router = useRouter()
 const auth = useAuthStore()
 
 const navItems = computed(() => [
@@ -54,105 +65,121 @@ const navItems = computed(() => [
 
 function isActive(name) { return route.name === name }
 
-function handleLogout() {
-  auth.logout()
-  router.push({ name: 'login' })
-}
+const userInitial = computed(() => {
+  if (!auth.user?.full_name) return (auth.role?.[0] || 'A').toUpperCase()
+  return auth.user.full_name.charAt(0).toUpperCase()
+})
+
+const roleLabel = computed(() => {
+  if (!auth.role) return ''
+  const r = ROLE_LABELS[auth.role]
+  return r ? r[locale.value] || r.bm : auth.role
+})
 </script>
 
 <style scoped>
 .sidebar {
-  width: var(--sidebar-width);
-  background: var(--color-bg-secondary);
-  border-right: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
+  width: var(--sidebar-width);
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-right: 1px solid var(--color-border);
   z-index: 50;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
 }
-.sidebar.collapsed { width: 72px; }
-.sidebar.collapsed .nav-label { display: none; }
+
+@media (min-width: 1024px) {
+  .sidebar { transform: translateX(0); }
+}
+.sidebar.open { transform: translateX(0); }
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  background: rgba(0,0,0,0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.sidebar-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+@media (min-width: 1024px) {
+  .sidebar-overlay { display: none !important; }
+}
 
 .sidebar-brand {
-  padding: var(--space-5);
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: 12px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--color-border);
 }
-.brand-logo {
-  width: 36px;
-  height: 36px;
+.brand-icon {
+  width: 38px; height: 38px;
   border-radius: var(--radius-md);
   background: var(--color-accent-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--text-xs);
-  font-weight: var(--font-bold);
-  color: #fff;
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: var(--font-bold); font-size: 17px;
+  color: #fff; flex-shrink: 0;
+  font-family: var(--font-display);
 }
-.brand-text {
-  font-size: var(--text-base);
-  font-weight: var(--font-bold);
-  color: var(--color-text-primary);
-  white-space: nowrap;
+.brand-name { font-size: 14px; font-weight: var(--font-semibold); color: var(--color-text-primary); }
+.brand-sub { font-size: 11px; color: var(--color-text-secondary); }
+
+.sidebar-label {
+  font-size: 10px; font-weight: var(--font-semibold);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+  padding: 12px 20px 4px;
 }
 
 .sidebar-nav {
-  flex: 1;
-  padding: var(--space-3);
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
+  flex: 1; overflow-y: auto;
+  padding: 4px 10px;
+  display: flex; flex-direction: column; gap: 2px;
 }
 .nav-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3);
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
   border-radius: var(--radius-md);
   color: var(--color-text-secondary);
   text-decoration: none;
-  transition: all 0.2s;
   font-size: var(--text-sm);
-  cursor: pointer;
-  background: none;
-  border: none;
-  width: 100%;
-  text-align: left;
+  font-weight: var(--font-medium);
+  transition: all 0.15s;
 }
-.nav-item:hover {
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
-}
+.nav-item:hover { background: rgba(0,0,0,0.04); color: var(--color-text-primary); }
 .nav-item.active {
-  background: rgba(99, 102, 241, 0.12);
+  background: rgba(0,122,255,0.1);
   color: var(--color-accent-primary);
-  box-shadow: inset 3px 0 0 var(--color-accent-primary);
 }
-.nav-label { white-space: nowrap; }
+.nav-item svg { flex-shrink: 0; opacity: 0.8; }
+.nav-item.active svg { opacity: 1; }
 
 .sidebar-footer {
-  padding: var(--space-3);
+  padding: 12px 16px;
   border-top: 1px solid var(--color-border);
+  display: flex; align-items: center; gap: 10px;
 }
-.logout-button {
-  width: 100%;
-  justify-content: flex-start;
-  color: var(--color-danger);
+.footer-avatar {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-gradient);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: var(--font-bold);
+  flex-shrink: 0;
 }
-.logout-button:hover {
-  background: rgba(239, 68, 68, 0.08);
-}
-
-@media (max-width: 767px) {
-  .sidebar { display: none; }
-}
+.footer-name { font-size: 13px; font-weight: var(--font-medium); color: var(--color-text-primary); }
+.footer-role { font-size: 11px; color: var(--color-text-secondary); }
 </style>
